@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spotify Artist Metrics</title>
+  <link href="https://fonts.googleapis.com/css?family=Inter:400,600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: #f6f8fa;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      background: #fff;
+      padding: 2.5rem 2rem 2rem 2rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+      min-width: 320px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: #1db954;
+    }
+    form {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      justify-content: center;
+    }
+    input[name="artist_name"] {
+      flex: 1;
+      padding: 0.6rem 0.8rem;
+      border: 1px solid #e1e4e8;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: border 0.2s;
+    }
+    input[name="artist_name"]:focus {
+      border: 1.5px solid #1db954;
+    }
+    input[type="submit"] {
+      background: #1db954;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    input[type="submit"]:hover {
+      background: #159c41;
+    }
+    .artist-info {
+      margin-top: 1.5rem;
+      text-align: center;
+    }
+    .artist-info h2 {
+      font-size: 1.4rem;
+      margin-bottom: 0.5rem;
+      color: #222;
+    }
+    .artist-info ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      text-align: left;
+    }
+    .artist-info li {
+      padding: 0.3rem 0;
+      font-size: 1rem;
+      color: #444;
+    }
+    .artist-image img {
+      width: 100%;
+      max-width: 250px;
+      border-radius: 12px;
+      margin: 1rem 0;
+    }
+    @media (max-width: 400px) {
+      .container {
+        padding: 1.2rem 0.5rem;
+        min-width: unset;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Buscar Artista</h1>
+    <form action="/" method="post">
+      <input name="artist_name" placeholder="Nome do artista" autocomplete="off" required>
+      <input type="submit" value="Buscar">
+    </form>
+    {% if artist %}
+      <div class="artist-info">
+        <h2>{{ artist.name }}</h2>
+        {% if artist.image_url %}
+          <div class="artist-image">
+            <img src="{{ artist.image_url }}" alt="Imagem de {{ artist.name }}">
+          </div>
+        {% endif %}
+        <ul>
+          <li><strong>Followers:</strong> {{ artist.followers }}</li>
+          <li><strong>Popularidade:</strong> {{ artist.popularity }}</li>
+          <li><strong>Gêneros:</strong> {{ artist.genres }}</li>
+        </ul>
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>
