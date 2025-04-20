@@ -1,1 +1,1 @@
-# octa-music
+# Octa Music
