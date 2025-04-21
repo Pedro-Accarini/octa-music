@@ -1,0 +1,35 @@
+name: "CD Checks"
+description: "Run deployment checks for the repository"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - development
+  pull_request:
+    branches:
+      - main
+      - development
+
+jobs:
+  using: "composite"
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run deployment checks
+      run: |
+        # Add your deployment checks here, e.g., running tests, building artifacts, etc.
+        echo "Running deployment checks..."
+        pytest tests/ --disable-warnings -q
