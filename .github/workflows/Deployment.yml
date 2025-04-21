@@ -16,7 +16,7 @@ jobs:
           node-version: '20'
       
       - name: Run CI Checks
-        uses: ./.github/actions/ci-checks.yml
+        uses: ./.github/actions/cd-checks
       
       - name: Deploy to github pages
         run: |
