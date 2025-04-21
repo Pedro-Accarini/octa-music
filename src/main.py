@@ -1,16 +1,21 @@
 from flask import Flask, request, render_template
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
+import os
+from dotenv import load_dotenv
+
+# Carrega variáveis de ambiente do arquivo .env
+load_dotenv()
 
 app = Flask(__name__)
 
-CLIENT_ID = ''
-CLIENT_SECRET = ''
+# Spotify API credentials
+CLIENT_ID = os.getenv('SPOTIPY_CLIENT_ID')
+CLIENT_SECRET = os.getenv('SPOTIPY_CLIENT_SECRET')
 
+# Initialize Spotify client
 auth_manager = SpotifyClientCredentials(client_id=CLIENT_ID, client_secret=CLIENT_SECRET)
 sp = spotipy.Spotify(auth_manager=auth_manager)
-
-TOP_50_GLOBAL_PLAYLIST_ID = '37i9dQZEVXbMDoHDwVN2tF'
 
 @app.route("/", methods=["GET", "POST"])
 def home():
@@ -24,24 +29,9 @@ def home():
                 'name': a['name'],
                 'followers': f"{a['followers']['total']:,}",
                 'popularity': a['popularity'],
-                'genres': ', '.join(a['genres']),
                 'image_url': a['images'][0]['url'] if a['images'] else None,
             }
-    return render_template("search_pop.html", artist=artist)
-
-@app.route("/top5")
-def top5():
-    top_tracks = []
-    playlist = sp.playlist_items(TOP_50_GLOBAL_PLAYLIST_ID, limit=5)
-    for item in playlist['items']:
-        track = item['track']
-        top_tracks.append({
-            'name': track['name'],
-            'artist': track['artists'][0]['name'],
-            'image_url': track['album']['images'][0]['url'] if track['album']['images'] else None,
-            'preview_url': track['preview_url'],
-        })
-    return render_template("top5.html", top_tracks=top_tracks)
+    return render_template("spotify.html", artist=artist)
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -3,6 +3,28 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Caches
+*.cache
+*.pyo
+
+# Environment variables
+.env
+
+# Virtual environments
+venv/
+.env/
+.venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# VSCode
+.vscode/
+
+# Mac
+.DS_Store
+
 # C extensions
 *.so
 
@@ -41,7 +63,6 @@ htmlcov/
 .nox/
 .coverage
 .coverage.*
-.cache
 nosetests.xml
 coverage.xml
 *.cover
@@ -102,15 +123,6 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
 # Spyder project settings
 .spyderproject
 .spyderworkspace
@@ -134,3 +146,7 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# Sensitive Data
+.env.example
+*.env.example
