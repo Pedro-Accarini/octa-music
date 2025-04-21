@@ -4,16 +4,13 @@ from spotipy.oauth2 import SpotifyClientCredentials
 import os
 from dotenv import load_dotenv
 
-# Carrega variáveis de ambiente do arquivo .env
 load_dotenv()
 
 app = Flask(__name__)
 
-# Spotify API credentials
 CLIENT_ID = os.getenv('SPOTIPY_CLIENT_ID')
 CLIENT_SECRET = os.getenv('SPOTIPY_CLIENT_SECRET')
 
-# Initialize Spotify client
 auth_manager = SpotifyClientCredentials(client_id=CLIENT_ID, client_secret=CLIENT_SECRET)
 sp = spotipy.Spotify(auth_manager=auth_manager)
 
