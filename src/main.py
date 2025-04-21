@@ -1,3 +1,8 @@
+try:
+    from . import __version__
+except ImportError:
+    from __init__ import __version__
+
 from flask import Flask, request, render_template
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
