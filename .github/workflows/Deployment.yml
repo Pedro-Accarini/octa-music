@@ -16,13 +16,10 @@ jobs:
         uses: ./.github/actions/cd-checks
 
       - name: Deploy to Render
-        env:
-          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
-          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
         run: |
-          RESPONSE=$(curl -s -w "%{http_code}" -o response.json -X POST "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys" \
+          RESPONSE=$(curl -s -w "%{http_code}" -o response.json -X POST "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys" \
             -H "Accept: application/json" \
-            -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
             -H "Content-Type: application/json" \
             -d '{
               "branch": "development",
