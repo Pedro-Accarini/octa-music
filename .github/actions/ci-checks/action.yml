@@ -39,7 +39,7 @@ runs:
     - name: Run unit tests
       shell: bash
       run: |
-        pytest .\tests\test_main.py > result.log || true
+        pytest ./tests/test_main.py > result.log || true
         if [ $? -ne 0 ]; then
           echo "Unit tests failed!"
           exit 1
