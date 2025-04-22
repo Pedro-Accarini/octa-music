@@ -48,5 +48,9 @@ runs:
         fi
         result=$(tail -n 10 result.log)     
         echo "{Unit_Tests}={result}" >> $GITHUB_OUTPUT
-        # Put the result of unit tests on annotations and upload as artifact to github actions
-        echo "::set-output name=unit_tests::$result"
+
+    - name: Archive code unit tests results
+      uses: actions/upload-artifact@v4
+      with:
+        name: unit-tests
+        path: result.log
