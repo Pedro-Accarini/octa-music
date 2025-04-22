@@ -48,4 +48,4 @@ runs:
           echo "All unit tests passed."
         fi
         # Output result to annotations on GitHub Actions Annotations
-        echo "::set-output name=result::$(tail -n 10 result.log)"        
+        echo "result=$(tail -n 10 result.log)" >> $GITHUB_OUTPUT     
