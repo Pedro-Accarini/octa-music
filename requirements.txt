@@ -1,3 +1,5 @@
 Flask
 spotipy
 python-dotenv
+pytest
+gunicorn

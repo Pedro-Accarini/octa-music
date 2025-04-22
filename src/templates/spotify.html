@@ -99,9 +99,9 @@
 </head>
 <body>
   <div class="container">
-    <h1>Buscar Artista</h1>
+    <h1>Find Artist</h1>
     <form action="/" method="post">
-      <input name="artist_name" placeholder="Nome do artista" autocomplete="off" required>
+      <input name="artist_name" placeholder="Artist Name" autocomplete="off" required>
       <input type="submit" value="Buscar">
     </form>
     {% if artist %}
@@ -114,7 +114,7 @@
         {% endif %}
         <ul>
           <li><strong>Followers:</strong> {{ artist.followers }}</li>
-          <li><strong>Popularidade:</strong> {{ artist.popularity }}</li>
+          <li><strong>Popularity:</strong> {{ artist.popularity }}</li>
         </ul>
       </div>
     {% endif %}

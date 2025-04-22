@@ -1,24 +1,30 @@
 name: Integration
+description: "Integration workflow for comum CI checks"
 
 on:
   push:
     branches:
       - main
       - development
+      -  feature/*
+      -  bugfix/*
+      -  hotfix/*
+      -  release/*
   pull_request:
     branches:
       - main
       - development
+      -  feature/*
+      -  bugfix/*
+      -  hotfix/*
+      -  release/*
 
 jobs:
   ci-checks:
+    name: CI Checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
+
       - name: Run CI Checks
-        uses: ./.github/actions/ci-checks.yml
+        uses: ./.github/actions/ci-checks

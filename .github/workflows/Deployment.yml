@@ -7,19 +7,32 @@ on:
 
 jobs:
   deploy:
+    name: Deploy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Run CI Checks
-        uses: ./.github/actions/ci-checks.yml
-      
-      - name: Deploy to github pages
+      - name: Run CD Checks
+        uses: ./.github/actions/cd-checks
+
+      - name: Deploy to Render
         run: |
-          echo "Deploying to GitHub Pages..."
-          npm run build
-          gh-pages -d build -r
+          RESPONSE=$(curl -s -w "%{http_code}" -o response.json -X POST "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys" \
+            -H "Accept: application/json" \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "branch": "development",
+              "environment": "Preproduction",
+              "message": "Deploying from GitHub Actions"
+            }')
+          cat response.json
+          if grep -q '"message":"not found' response.json; then
+            echo "Deployment failed: Service not found!"
+            exit 1
+          elif [ "$RESPONSE" -ge 400 ]; then
+            echo "Deployment failed with HTTP status $RESPONSE"
+            exit 1
+          else
+            echo "Deployment successful!"
+          fi

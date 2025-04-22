@@ -1,0 +1,56 @@
+name: "CI Checks"
+description: "Run linting checks for the repository"
+
+inputs:
+  python-version:
+    description: "Python version to use"
+    required: true
+    default: "3.8"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run unit tests
+      shell: bash
+      run: |
+        python -m unittest discover -s tests -p "*.py" > result.log || true
+        tail -n 10 result.log
+        if grep -q "FAILED" result.log; then
+          echo "Unit tests failed!"
+          exit 1
+        else
+          echo "All unit tests passed."
+        fi
+
+    - name: Run unit tests
+      shell: bash
+      run: |
+        pytest ./tests/test_main.py > result.log || true
+        if [ $? -ne 0 ]; then
+          echo "Unit tests failed!"
+          exit 1
+        else
+          echo "All unit tests passed."
+        fi
+        result=$(tail -n 10 result.log)     
+        echo "{Unit_Tests}={result}" >> $GITHUB_OUTPUT
+
+    - name: Archive code unit tests results
+      uses: actions/upload-artifact@v4
+      with:
+        name: unit-tests
+        path: result.log

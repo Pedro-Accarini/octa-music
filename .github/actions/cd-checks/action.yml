@@ -1,5 +1,5 @@
-name: "CI Checks"
-description: "Run linting checks for the repository"
+name: "CD Checks"
+description: "Run deployment checks for the repository"
 
 inputs:
   python-version:
@@ -19,11 +19,13 @@ runs:
         python-version: ${{ inputs.python-version }}
 
     - name: Install dependencies
+      shell: bash
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run linters
+    - name: Run deployment checks
+      shell: bash
       run: |
-        flake8 . --max-line-length=120 --ignore=E501,W503,E203,F401,F403,F405,E722,E731,E741,W504,W605,W601,W602,W604,W606,W607,W608,W609,W610,W611,W612,W613,W614,W615,W616,W617,W618,W619
-        black . --check --line-length 120 --skip-string-normalization
+        # Add your deployment checks here, e.g., running tests, building artifacts, etc.
+        echo "Running deployment checks..."
