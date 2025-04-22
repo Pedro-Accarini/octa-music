@@ -16,6 +16,7 @@ jobs:
         uses: ./.github/actions/cd-checks
 
       - name: Deploy to Render
+        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           RESPONSE=$(curl -s -w "%{http_code}" -o response.json -X POST "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys" \
             -H "Accept: application/json" \
