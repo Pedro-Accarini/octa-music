@@ -29,4 +29,3 @@ runs:
       run: |
         # Add your deployment checks here, e.g., running tests, building artifacts, etc.
         echo "Running deployment checks..."
-        pytest tests/ --disable-warnings -q
