@@ -49,7 +49,6 @@ jobs:
           fi
 
       - name: Workflow resume
-        if: ${{ steps.check_versioning.outcome == 'success' && steps.ci-checks.outputs.unit-tests == 'success' }}
         run: | 
             echo "## All checks passed. Proceeding with the workflow."
             echo "## Project version: ${{ steps.check_versioning.outputs.PROJECT_VERSION }}"
