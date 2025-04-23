@@ -52,6 +52,31 @@ SPOTIPY_CLIENT_SECRET=your_client_secret
 
 You can obtain these credentials at https://developer.spotify.com/dashboard/applications
 
+## Environments (dev, pre, prod)
+
+The project supports multiple execution environments (development, preproduction, production) using the `APP_ENV` environment variable.
+
+- For **development**: set `APP_ENV=development`
+- For **preproduction**: set `APP_ENV=preproduction`
+- For **production**: set `APP_ENV=production`
+
+Flask will automatically load the correct configuration according to the value of `APP_ENV`.
+
+You can create specific `.env` files for each environment, for example:
+- `.env.development`
+- `.env.preproduction`
+- `.env.production`
+
+Make sure your pipeline or execution environment loads the correct file and sets the `APP_ENV` variable.
+
+Example of local execution for development:
+```sh
+set APP_ENV=development
+python src/main.py
+```
+
+Your pipeline should set `APP_ENV` according to the branch (e.g.: `main` → production, `development` → development, `release/*` → preproduction).
+
 ## Contributing
 
 Contributions are welcome! Please read the [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.

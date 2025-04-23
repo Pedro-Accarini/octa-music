@@ -23,7 +23,7 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{
               "branch": "development",
-              "environment": "Preproduction",
+              "environment": "Production",
               "message": "Deploying from GitHub Actions"
             }')
           cat response.json

@@ -8,10 +8,22 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import os
 from dotenv import load_dotenv
+from .config import DevelopmentConfig, PreproductionConfig, ProductionConfig, Config
 
 load_dotenv()
 
 app = Flask(__name__)
+
+app_env = os.getenv("APP_ENV", "development").lower()
+
+if app_env == "production":
+    app.config.from_object(ProductionConfig)
+elif app_env == "preproduction":
+    app.config.from_object(PreproductionConfig)
+elif app_env == "development":
+    app.config.from_object(DevelopmentConfig)
+else:
+    app.config.from_object(Config)
 
 CLIENT_ID = os.getenv('SPOTIPY_CLIENT_ID')
 CLIENT_SECRET = os.getenv('SPOTIPY_CLIENT_SECRET')
@@ -37,4 +49,4 @@ def home():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run(host="0.0.0.0", port=port, debug=app.config["DEBUG"])

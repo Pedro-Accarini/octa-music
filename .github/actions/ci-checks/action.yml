@@ -1,9 +1,9 @@
 name: "CI Checks"
-description: "Run linting checks for the repository"
+description: "Integration workflow for comum CI tasks"
 
 inputs:
   python-version:
-    description: "Python version to use"
+    description: "Python version"
     required: true
     default: "3.8"
 
@@ -25,32 +25,23 @@ runs:
         pip install -r requirements.txt
 
     - name: Run unit tests
+      id: unit-tests
       shell: bash
       run: |
-        python -m unittest discover -s tests -p "*.py" > result.log || true
-        tail -n 10 result.log
-        if grep -q "FAILED" result.log; then
-          echo "Unit tests failed!"
-          exit 1
-        else
-          echo "All unit tests passed."
-        fi
-
-    - name: Run unit tests
-      shell: bash
-      run: |
-        pytest ./tests/test_main.py > result.log || true
+        pytest ./tests/test_main.py > result.log
         if [ $? -ne 0 ]; then
           echo "Unit tests failed!"
           exit 1
         else
           echo "All unit tests passed."
         fi
-        result=$(tail -n 10 result.log)     
-        echo "{Unit_Tests}={result}" >> $GITHUB_OUTPUT
+        result=$(tail -n 10 result.log)
+        echo "unit-tests<<EOF" >> $GITHUB_OUTPUT
+        echo "$result" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
 
     - name: Archive code unit tests results
       uses: actions/upload-artifact@v4
       with:
-        name: unit-tests
+        name: unit-tests-results
         path: result.log
