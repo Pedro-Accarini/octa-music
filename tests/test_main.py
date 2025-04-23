@@ -43,5 +43,4 @@ def test_home_post_artist_not_found(mock_sp, client):
     mock_sp.search.return_value = {'artists': {'items': []}}
     response = client.post('/', data={'artist_name': 'Unknown Artist'})
     assert response.status_code == 200
-    # Should not display artist info
     assert b'Unknown Artist' not in response.data
