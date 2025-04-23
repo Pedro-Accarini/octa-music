@@ -28,15 +28,12 @@ runs:
       id: unit-tests
       shell: bash
       run: |
-        pytest ./tests/test_main.py > result.log
-        if [ $? -ne 0 ]; then
-          echo "Unit tests failed!"
-          exit 1
-        else
-          echo "All unit tests passed."
-        fi
-        result=$(tail -n 10 result.log)     
-        echo "{Unit_Tests}={result}" >> $GITHUB_OUTPUT
+        pytest ./tests/test_main.py | tee result.log
+          if [ ${PIPESTATUS[0]} -ne 0 ]; then
+            echo "Unit tests failed!"
+            exit 1
+          fi
+          tail -n 10 result.log >> $GITHUB_OUTPUT
 
     - name: Archive code unit tests results
       uses: actions/upload-artifact@v4
