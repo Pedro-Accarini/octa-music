@@ -34,7 +34,7 @@ jobs:
         id: check_versioning
         run: |
           echo "Checking project versioning..."
-          PROJECT_VERSION=$(cat ./src/_init_.py | grep -oP '(?<=__version__ = ")[^"]*') >> $GITHUB_OUTPUT
+          PROJECT_VERSION=$(cat ./src/__init__.py | grep -oP '(?<=__version__ = ")[^"]*') >> $GITHUB_OUTPUT
           LATEST_TAG=$(git describe --tags --abbrev=0) >> $GITHUB_OUTPUT
           if [[ $PROJECT_VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ || $PROJECT_VERSION <= $LATEST_TAG ]]; then
             echo "Please update the project version. Current version: $PROJECT_VERSION, Latest tag: $LATEST_TAG"
