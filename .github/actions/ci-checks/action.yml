@@ -36,7 +36,9 @@ runs:
           echo "All unit tests passed."
         fi
         result=$(tail -n 10 result.log)
-        echo "unit-tests=$result" >> $GITHUB_OUTPUT
+        echo "unit-tests<<EOF" >> $GITHUB_OUTPUT
+        echo "$result" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
 
     - name: Archive code unit tests results
       uses: actions/upload-artifact@v4
