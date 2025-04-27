@@ -8,7 +8,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import os
 from dotenv import load_dotenv
-from config import DevelopmentConfig, PreproductionConfig, ProductionConfig, Config
+from src.config import DevelopmentConfig, PreproductionConfig, ProductionConfig, Config
 
 load_dotenv()
 
