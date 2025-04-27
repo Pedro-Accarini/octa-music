@@ -36,6 +36,18 @@ jobs:
           else
             echo "Deployment successful!"
           fi
+      
+      - name: Publish New Git Tag Reading python version for this project
+        run: |
+          echo "Checking project versioning..."
+          PROJECT_VERSION=$(cat ./src/__init__.py | grep -oP '(?<=__version__ = ")[^"]*')
+          # Publish to git the tag via bash
+          git publish --tags --message "Release $PROJECT_VERSION" --tag "$PROJECT_VERSION" || echo "No git tags found. Please create a tag before running this workflow."
+          git fetch --tags --unshallow || git fetch --tags
+          LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null || echo "")
+          # Log tag and version published
+          echo "project_version=$PROJECT_VERSION" >> $GITHUB_OUTPUT
+          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
 
       - name: Workflow resume
         run: |
@@ -47,13 +59,13 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| 🌐 Render Service | 🔗 Deployment URL |" >> $GITHUB_STEP_SUMMARY
           echo "|:-----------------:|:------------------:|" >> $GITHUB_STEP_SUMMARY
-          echo "| [${{ secrets.RENDER_SERVICE_ID }}]($RENDER_DEPLOY_URL) | [View Deployment]($RENDER_DEPLOY_URL) |" >> $GITHUB_STEP_SUMMARY
+          echo "| [Service]($RENDER_DEPLOY_URL) | [View Deployment]($RENDER_DEPLOY_URL) |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## 📜 Deployment Logs" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| 🌐 Dashboard Render URL | 🌍 Environment Deployed | 🌿 Branch Deployed From |" >> $GITHUB_STEP_SUMMARY
           echo "|:-----------------------:|:----------------------:|:-----------------------:|" >> $GITHUB_STEP_SUMMARY
-          echo "| [Render Dashboard]($RENDER_DEPLOY_URL) | [Production]($RENDER_DEPLOY_URL) | [$GITHUB_REF]($RENDER_DEPLOY_URL) |" >> $GITHUB_STEP_SUMMARY
+          echo "| [Render Dashboard]($RENDER_DEPLOY_URL) | [Production]($RENDER_DEPLOY_URL) | $GITHUB_REF |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
