@@ -29,8 +29,10 @@ runs:
       shell: bash
       run: |
         pytest ./tests/test_main.py > result.log
-        if [ $? -ne 0 ]; then
-          echo "Unit tests failed!"
+        status=$?
+        if [ $status -ne 0 ]; then
+          echo "Unit tests failed! Printing result.log:" 
+          cat result.log
           exit 1
         else
           echo "All unit tests passed."
