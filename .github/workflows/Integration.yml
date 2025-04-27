@@ -50,6 +50,6 @@ jobs:
 
       - name: Workflow resume
         run: | 
-            echo "## All checks passed. Proceeding with the workflow."
-            echo "## Project version: ${{ steps.check_versioning.outputs.PROJECT_VERSION }}"
-            echo "## Latest tag: ${{ steps.check_versioning.outputs.LATEST_TAG }}"
+            echo "## All checks passed. Proceeding with the workflow." >> $GITHUB_STEP_SUMMARY
+            echo "## Project version: ${{ steps.check_versioning.outputs.PROJECT_VERSION }}" >> $GITHUB_STEP_SUMMARY
+            echo "## Latest tag: ${{ steps.check_versioning.outputs.LATEST_TAG }}" >> $GITHUB_STEP_SUMMARY
