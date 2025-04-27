@@ -1,3 +1,7 @@
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 try:
     from __init__ import __version__
 except ImportError:
@@ -6,7 +10,6 @@ except ImportError:
 from flask import Flask, request, render_template
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
-import os
 from dotenv import load_dotenv
 from src.config import DevelopmentConfig, PreproductionConfig, ProductionConfig, Config
 
