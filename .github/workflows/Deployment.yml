@@ -36,16 +36,15 @@ jobs:
           else
             echo "Deployment successful!"
           fi
-      
-      - name: Publish New Git Tag Reading python version for this project
+   
+      - name: Publish New Git Tag
         run: |
           echo "Checking project versioning..."
           PROJECT_VERSION=$(cat ./src/__init__.py | grep -oP '(?<=__version__ = ")[^"]*')
-          # Publish to git the tag via bash
-          git publish --tags --message "Release $PROJECT_VERSION" --tag "$PROJECT_VERSION" || echo "No git tags found. Please create a tag before running this workflow."
+          git tag "$PROJECT_VERSION"
+          git push origin "$PROJECT_VERSION"
           git fetch --tags --unshallow || git fetch --tags
           LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null || echo "")
-          # Log tag and version published
           echo "project_version=$PROJECT_VERSION" >> $GITHUB_OUTPUT
           echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
 
