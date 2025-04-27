@@ -1,5 +1,5 @@
 name: Integration
-description: "Integration workflow for comum CI checks"
+description: "Integration workflow"
 
 on:
   push:
@@ -41,6 +41,8 @@ jobs:
             echo "No git tags found. Please create a tag before running this workflow."
             exit 1
           fi
+          echo "project_version=$PROJECT_VERSION" >> $GITHUB_OUTPUT
+          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
           if [[ $PROJECT_VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ && $PROJECT_VERSION > $LATEST_TAG ]]; then
             exit 0
           else
@@ -49,7 +51,19 @@ jobs:
           fi
 
       - name: Workflow resume
-        run: | 
-            echo "## All checks passed. Proceeding with the workflow."
-            echo "## Project version: ${{ steps.check_versioning.outputs.PROJECT_VERSION }}"
-            echo "## Latest tag: ${{ steps.check_versioning.outputs.LATEST_TAG }}"
+        run: |
+          REPO_URL="https://github.com/${{ github.repository }}"
+          TAG_URL="$REPO_URL/releases/tag/${{ steps.check_versioning.outputs.latest_tag }}"
+          echo "## 🎉 Workflow Execution Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| 🏷️ Latest Git Tag | 📦 Project Version |" >> $GITHUB_STEP_SUMMARY
+          echo "|:-----------------:|:------------------:|" >> $GITHUB_STEP_SUMMARY
+          echo "| [${{ steps.check_versioning.outputs.latest_tag }}]($TAG_URL) | ${{ steps.check_versioning.outputs.project_version }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.check_versioning.outputs.project_version }}" = "${{ steps.check_versioning.outputs.latest_tag }}" ]; then
+            echo "✅ **Versions match!**" >> $GITHUB_STEP_SUMMARY
+            else
+            echo "Attention: 🚨 **Versions do not match!**" >> $GITHUB_STEP_SUMMARY
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

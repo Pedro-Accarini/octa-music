@@ -36,3 +36,24 @@ jobs:
           else
             echo "Deployment successful!"
           fi
+
+      - name: Workflow resume
+        run: |
+          REPO_URL="https://github.com/${{ github.repository }}"
+          RENDER_DEPLOY_URL="https://dashboard.render.com/deploy/${{ secrets.RENDER_SERVICE_ID }}"
+          echo "# 🎉 Workflow Execution Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚀 Deployment Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| 🌐 Render Service | 🔗 Deployment URL |" >> $GITHUB_STEP_SUMMARY
+          echo "|:-----------------:|:------------------:|" >> $GITHUB_STEP_SUMMARY
+          echo "| [${{ secrets.RENDER_SERVICE_ID }}]($RENDER_DEPLOY_URL) | [View Deployment]($RENDER_DEPLOY_URL) |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📜 Deployment Logs" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| 🌐 Dashboard Render URL | 🌍 Environment Deployed | 🌿 Branch Deployed From |" >> $GITHUB_STEP_SUMMARY
+          echo "|:-----------------------:|:----------------------:|:-----------------------:|" >> $GITHUB_STEP_SUMMARY
+          echo "| [Render Dashboard]($RENDER_DEPLOY_URL) | [Production]($RENDER_DEPLOY_URL) | [$GITHUB_REF]($RENDER_DEPLOY_URL) |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
