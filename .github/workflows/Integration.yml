@@ -62,8 +62,8 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ "${{ steps.check_versioning.outputs.project_version }}" = "${{ steps.check_versioning.outputs.latest_tag }}" ]; then
             echo "✅ **Versions match!**" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "⚠️ **Please update the project version!**" >> $GITHUB_STEP_SUMMARY
+            else
+            echo "Attention: 🚨 **Versions do not match!**" >> $GITHUB_STEP_SUMMARY
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
