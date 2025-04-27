@@ -1,21 +1,21 @@
 @echo off
-REM Cria ambiente virtual se não existir
+REM Create virtual environment if it doesn't exist
 if not exist venv (
     python -m venv venv
 )
-REM Ativa o ambiente virtual
+REM Activate the virtual environment
 call venv\Scripts\activate
 
-REM Instala dependências
+REM Install dependencies
 pip install -r requirements.txt
 
-REM Copia .env.example para .env se não existir
+REM Copy .env.example to .env if it doesn't exist
 if not exist .env (
     copy .env.example .env
-    echo Copie suas credenciais para o arquivo .env
+    echo Copy your credentials to the .env file
 )
 
-echo Ambiente pronto! Para rodar o projeto:
+echo Environment ready! To run the project:
 echo.
 echo     call venv\Scripts\activate
 echo     python src\main.py
