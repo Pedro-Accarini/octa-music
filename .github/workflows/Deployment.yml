@@ -39,7 +39,7 @@ jobs:
           else
             echo "Deployment successful!"
           fi
-      
+   
       - name: Publish New Git Tag
         run: |
           echo "Checking project versioning..."
