@@ -115,6 +115,12 @@
         <ul>
           <li><strong>Followers:</strong> {{ artist.followers }}</li>
           <li><strong>Popularity:</strong> {{ artist.popularity }}</li>
+          {% if artist.genres %}
+            <li><strong>Genres:</strong> {{ artist.genres }}</li>
+          {% endif %}
+          {% if artist.spotify_url %}
+            <li><strong>Spotify Profile:</strong> <a href="{{ artist.spotify_url }}" target="_blank">{{ artist.name }}</a></li>
+          {% endif %}
         </ul>
       </div>
     {% endif %}

@@ -47,6 +47,8 @@ def home():
                 'followers': f"{a['followers']['total']:,}",
                 'popularity': a['popularity'],
                 'image_url': a['images'][0]['url'] if a['images'] else None,
+                'genres': ', '.join(a.get('genres', [])) if a.get('genres') else None,
+                'spotify_url': a['external_urls']['spotify'] if 'external_urls' in a and 'spotify' in a['external_urls'] else None,
             }
     return render_template("spotify.html", artist=artist)
 
