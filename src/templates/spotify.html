@@ -5,123 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spotify Artist Metrics</title>
   <link href="https://fonts.googleapis.com/css?family=Inter:400,600&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Inter', Arial, sans-serif;
-      background: #f6f8fa;
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .container {
-      background: #fff;
-      padding: 2.5rem 2rem 2rem 2rem;
-      border-radius: 16px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.07);
-      min-width: 320px;
-      max-width: 400px;
-      width: 100%;
-      text-align: center;
-    }
-    h1 {
-      font-size: 1.6rem;
-      font-weight: 600;
-      margin-bottom: 1.5rem;
-      color: #1db954;
-    }
-    form {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1.5rem;
-      justify-content: center;
-    }
-    input[name="artist_name"] {
-      flex: 1;
-      padding: 0.6rem 0.8rem;
-      border: 1px solid #e1e4e8;
-      border-radius: 8px;
-      font-size: 1rem;
-      outline: none;
-      transition: border 0.2s;
-    }
-    input[name="artist_name"]:focus {
-      border: 1.5px solid #1db954;
-    }
-    input[type="submit"] {
-      background: #1db954;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 0.6rem 1.2rem;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    input[type="submit"]:hover {
-      background: #159c41;
-    }
-    .artist-info {
-      margin-top: 1.5rem;
-      text-align: center;
-    }
-    .artist-info h2 {
-      font-size: 1.4rem;
-      margin-bottom: 0.5rem;
-      color: #222;
-    }
-    .artist-info ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      text-align: left;
-    }
-    .artist-info li {
-      padding: 0.3rem 0;
-      font-size: 1rem;
-      color: #444;
-    }
-    .artist-image img {
-      width: 100%;
-      max-width: 250px;
-      border-radius: 12px;
-      margin: 1rem 0;
-    }
-    @media (max-width: 400px) {
-      .container {
-        padding: 1.2rem 0.5rem;
-        min-width: unset;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/spotify.css') }}">
 </head>
 <body>
   <div class="container">
     <h1>Find Artist</h1>
     <form action="/" method="post">
       <input name="artist_name" placeholder="Artist Name" autocomplete="off" required>
-      <input type="submit" value="Buscar">
+      <button type="submit">Buscar</button>
     </form>
     {% if artist %}
-      <div class="artist-info">
-        <h2>{{ artist.name }}</h2>
+      <div class="artist-card">
         {% if artist.image_url %}
-          <div class="artist-image">
-            <img src="{{ artist.image_url }}" alt="Imagem de {{ artist.name }}">
-          </div>
+          <img class="artist-img" src="{{ artist.image_url }}" alt="Imagem de {{ artist.name }}">
         {% endif %}
-        <ul>
-          <li><strong>Followers:</strong> {{ artist.followers }}</li>
-          <li><strong>Popularity:</strong> {{ artist.popularity }}</li>
-          {% if artist.genres %}
-            <li><strong>Genres:</strong> {{ artist.genres }}</li>
-          {% endif %}
-          {% if artist.spotify_url %}
-            <li><strong>Spotify Profile:</strong> <a href="{{ artist.spotify_url }}" target="_blank">{{ artist.name }}</a></li>
-          {% endif %}
-        </ul>
+        <div class="artist-name">{{ artist.name }}</div>
+        <div class="artist-info"><strong>Followers:</strong> {{ artist.followers }}</div>
+        <div class="artist-info"><strong>Popularity:</strong> {{ artist.popularity }}</div>
+        {% if artist.genres %}
+          <div class="artist-info"><strong>Genres:</strong> {{ artist.genres }}</div>
+        {% endif %}
+        {% if artist.spotify_url %}
+          <a class="artist-link" href="{{ artist.spotify_url }}" target="_blank">Spotify Profile</a>
+        {% endif %}
       </div>
     {% endif %}
   </div>
