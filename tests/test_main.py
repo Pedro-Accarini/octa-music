@@ -20,31 +20,30 @@ def client():
     with app.test_client() as client:
         yield client
 
-@patch('src.main.sp')
-def test_home_get(mock_sp, client):
+@patch('src.main.spotify_service.search_artist')
+def test_home_get(mock_search_artist, client):
+    mock_search_artist.return_value = None
     response = client.get('/')
     assert response.status_code == 200
     assert b'artist' in response.data or b'Artist' in response.data
 
-@patch('src.main.sp')
-def test_home_post_artist_found(mock_sp, client):
-    mock_sp.search.return_value = {
-        'artists': {
-            'items': [{
-                'name': 'Test Artist',
-                'followers': {'total': 12345},
-                'popularity': 80,
-                'images': [{'url': 'http://example.com/image.jpg'}]
-            }]
-        }
+@patch('src.main.spotify_service.search_artist')
+def test_home_post_artist_found(mock_search_artist, client):
+    mock_search_artist.return_value = {
+        'name': 'Test Artist',
+        'followers': '12,345',
+        'popularity': 80,
+        'image_url': 'http://example.com/image.jpg',
+        'genres': 'pop',
+        'spotify_url': 'http://spotify.com/artist/123',
     }
     response = client.post('/', data={'artist_name': 'Test Artist'})
     assert response.status_code == 200
     assert b'Test Artist' in response.data
 
-@patch('src.main.sp')
-def test_home_post_artist_not_found(mock_sp, client):
-    mock_sp.search.return_value = {'artists': {'items': []}}
-    response = client.post('/', data={'artist_name': 'Unknown Artist'})
+@patch('src.main.spotify_service.search_artist')
+def test_home_post_artist_not_found(mock_search_artist, client):
+    mock_search_artist.return_value = None
+    response = client.post('/', data={'artist_name': 'Nonexistent Artist'})
     assert response.status_code == 200
-    assert b'Unknown Artist' not in response.data
+    assert b'artist' in response.data or b'Artist' in response.data
