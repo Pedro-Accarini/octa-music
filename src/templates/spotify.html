@@ -10,6 +10,7 @@
   <style>
     .main-flex { display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; }
     .search-box { flex: 1 1 350px; min-width: 320px; max-width: 420px; }
+    .yt-img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem; border: 3px solid #1db954; }
   </style>
 </head>
 <body>
@@ -45,11 +46,15 @@
       </form>
       {% if yt_stats %}
         <div class="youtube-stats">
-          <p><strong>Canal:</strong> {{ yt_stats.title }}</p>
-          <p>{{ yt_stats.description }}</p>
+          {% if yt_stats.image_url %}
+            <img class="yt-img" src="{{ yt_stats.image_url }}" alt="Imagem do canal {{ yt_stats.title }}">
+          {% endif %}
+          <div class="artist-name">{{ yt_stats.title }}</div>
           <p><strong>Inscritos:</strong> {{ yt_stats.subscribers }}</p>
-          <p><strong>Visualizações:</strong> {{ yt_stats.views }}</p>
-          <p><strong>Vídeos:</strong> {{ yt_stats.video_count }}</p>
+          <p><strong>Número de Vídeos:</strong> {{ yt_stats.video_count }}</p>
+          {% if yt_stats.channel_url %}
+            <a class="artist-link" href="{{ yt_stats.channel_url }}" target="_blank">YouTube Channel</a>
+          {% endif %}
         </div>
       {% endif %}
     </div>
