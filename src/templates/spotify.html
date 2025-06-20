@@ -18,13 +18,13 @@
     <div class="container search-box">
       <h1>Spotify</h1>
       <form action="/" method="post">
-        <input name="artist_name" placeholder="Nome do Artista" autocomplete="off" required>
-        <button type="submit" name="action" value="spotify">Buscar</button>
+        <input name="artist_name" placeholder="Artist Name" autocomplete="off" required>
+        <button type="submit" name="action" value="spotify">Search</button>
       </form>
       {% if artist %}
         <div class="artist-card">
           {% if artist.image_url %}
-            <img class="artist-img" src="{{ artist.image_url }}" alt="Imagem de {{ artist.name }}">
+            <img class="artist-img" src="{{ artist.image_url }}" alt="Image of {{ artist.name }}">
           {% endif %}
           <div class="artist-name">{{ artist.name }}</div>
           <div class="artist-info"><strong>Followers:</strong> {{ artist.followers }}</div>
@@ -38,20 +38,22 @@
         </div>
       {% endif %}
     </div>
-    <div class="youtube-container search-box">
+    <div class="container search-box">
       <h1 class="youtube-title">YouTube</h1>
       <form method="post" action="/">
-        <input type="text" name="channel_name" placeholder="Nome do canal no YouTube" required>
-        <button type="submit" name="action" value="youtube">Buscar</button>
+        <input type="text" name="channel_name" placeholder="YouTube Channel Name" required>
+        <button type="submit" name="action" value="youtube">Search</button>
       </form>
       {% if yt_stats %}
-        <div class="youtube-stats">
+        <div class="artist-card">
           {% if yt_stats.image_url %}
-            <img class="yt-img" src="{{ yt_stats.image_url }}" alt="Imagem do canal {{ yt_stats.title }}">
+            <img class="artist-img" src="{{ yt_stats.image_url }}" alt="Image of channel {{ yt_stats.title }}">
           {% endif %}
           <div class="artist-name">{{ yt_stats.title }}</div>
-          <p><strong>Inscritos:</strong> {{ yt_stats.subscribers }}</p>
-          <p><strong>Número de Vídeos:</strong> {{ yt_stats.video_count }}</p>
+          <div class="artist-info">{{ yt_stats.description }}</div>
+          <div class="artist-info"><strong>Subscribers:</strong> {{ yt_stats.subscribers }}</div>
+          <div class="artist-info"><strong>Views:</strong> {{ yt_stats.views }}</div>
+          <div class="artist-info"><strong>Video Count:</strong> {{ yt_stats.video_count }}</div>
           {% if yt_stats.channel_url %}
             <a class="artist-link" href="{{ yt_stats.channel_url }}" target="_blank">YouTube Channel</a>
           {% endif %}
