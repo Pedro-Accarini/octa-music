@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Estatísticas do YouTube</title>
+    <link rel="stylesheet" href="/static/css/youtube.css">
+</head>
+<body>
+    <div class="youtube-container">
+        <h1 class="youtube-title">{{ title }}</h1>
+        <p>{{ description }}</p>
+        <div class="youtube-stats">
+            <p><strong>Inscritos:</strong> {{ subscribers }}</p>
+            <p><strong>Visualizações:</strong> {{ views }}</p>
+            <p><strong>Vídeos:</strong> {{ video_count }}</p>
+        </div>
+        <form method="get">
+            <input type="text" name="channel_id" placeholder="ID do canal do YouTube" required>
+            <button type="submit">Buscar</button>
+        </form>
+    </div>
+</body>
+</html>
