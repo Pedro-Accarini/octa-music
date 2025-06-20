@@ -3,33 +3,61 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Spotify Artist Metrics</title>
+  <title>Spotify & YouTube Artist Metrics</title>
   <link href="https://fonts.googleapis.com/css?family=Inter:400,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/spotify.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/youtube.css') }}">
+  <style>
+    .main-flex { display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; }
+    .search-box { flex: 1 1 350px; min-width: 320px; max-width: 420px; }
+    .yt-img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem; border: 3px solid #1db954; }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Find Artist</h1>
-    <form action="/" method="post">
-      <input name="artist_name" placeholder="Artist Name" autocomplete="off" required>
-      <button type="submit">Buscar</button>
-    </form>
-    {% if artist %}
-      <div class="artist-card">
-        {% if artist.image_url %}
-          <img class="artist-img" src="{{ artist.image_url }}" alt="Imagem de {{ artist.name }}">
-        {% endif %}
-        <div class="artist-name">{{ artist.name }}</div>
-        <div class="artist-info"><strong>Followers:</strong> {{ artist.followers }}</div>
-        <div class="artist-info"><strong>Popularity:</strong> {{ artist.popularity }}</div>
-        {% if artist.genres %}
-          <div class="artist-info"><strong>Genres:</strong> {{ artist.genres }}</div>
-        {% endif %}
-        {% if artist.spotify_url %}
-          <a class="artist-link" href="{{ artist.spotify_url }}" target="_blank">Spotify Profile</a>
-        {% endif %}
-      </div>
-    {% endif %}
+  <div class="main-flex">
+    <div class="container search-box">
+      <h1>Spotify</h1>
+      <form action="/" method="post">
+        <input name="artist_name" placeholder="Nome do Artista" autocomplete="off" required>
+        <button type="submit" name="action" value="spotify">Buscar</button>
+      </form>
+      {% if artist %}
+        <div class="artist-card">
+          {% if artist.image_url %}
+            <img class="artist-img" src="{{ artist.image_url }}" alt="Imagem de {{ artist.name }}">
+          {% endif %}
+          <div class="artist-name">{{ artist.name }}</div>
+          <div class="artist-info"><strong>Followers:</strong> {{ artist.followers }}</div>
+          <div class="artist-info"><strong>Popularity:</strong> {{ artist.popularity }}</div>
+          {% if artist.genres %}
+            <div class="artist-info"><strong>Genres:</strong> {{ artist.genres }}</div>
+          {% endif %}
+          {% if artist.spotify_url %}
+            <a class="artist-link" href="{{ artist.spotify_url }}" target="_blank">Spotify Profile</a>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+    <div class="youtube-container search-box">
+      <h1 class="youtube-title">YouTube</h1>
+      <form method="post" action="/">
+        <input type="text" name="channel_name" placeholder="Nome do canal no YouTube" required>
+        <button type="submit" name="action" value="youtube">Buscar</button>
+      </form>
+      {% if yt_stats %}
+        <div class="youtube-stats">
+          {% if yt_stats.image_url %}
+            <img class="yt-img" src="{{ yt_stats.image_url }}" alt="Imagem do canal {{ yt_stats.title }}">
+          {% endif %}
+          <div class="artist-name">{{ yt_stats.title }}</div>
+          <p><strong>Inscritos:</strong> {{ yt_stats.subscribers }}</p>
+          <p><strong>Número de Vídeos:</strong> {{ yt_stats.video_count }}</p>
+          {% if yt_stats.channel_url %}
+            <a class="artist-link" href="{{ yt_stats.channel_url }}" target="_blank">YouTube Channel</a>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
   </div>
 </body>
 </html>
