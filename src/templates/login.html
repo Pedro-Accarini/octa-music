@@ -1,0 +1,100 @@
+{% extends 'main.html' %}
+{% block title %}Login | Spotify & YouTube Artist Metrics{% endblock %}
+{% block content %}
+<div style="display:flex;justify-content:center;align-items:center;min-height:70vh;width:100vw;">
+  <form class="login-form" method="post" action="/login">
+    <h2>Welcome back!</h2>
+    <p class="login-desc">Sign in to your account to continue exploring artist metrics.</p>
+    <div class="input-group">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" placeholder="Enter your username" required>
+    </div>
+    <div class="input-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" placeholder="Enter your password" required>
+    </div>
+    <button type="submit" class="login-btn" style="width:100%;margin-top:1.2rem;">Sign In</button>
+    <div class="login-footer" style="display:flex;justify-content:space-between;align-items:center;margin-top:1.2rem;">
+      <a href="/" class="back-home-btn">&#8592; Back to Home</a>
+      <a href="#" class="forgot-link">Forgot your password?</a>
+    </div>
+  </form>
+</div>
+<style>
+.login-form {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(30,185,84,0.10);
+  padding: 2.5rem 2rem 2rem 2rem;
+  max-width: 370px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.7rem;
+}
+.login-form h2 {
+  margin-bottom: 0.2rem;
+  color: #1db954;
+  font-weight: 700;
+  font-size: 2rem;
+  text-align: center;
+}
+.login-desc {
+  color: #444;
+  font-size: 1rem;
+  text-align: center;
+  margin-bottom: 1.2rem;
+}
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 0.7rem;
+}
+.input-group label {
+  font-size: 1rem;
+  color: #1db954;
+  font-weight: 600;
+}
+.input-group input {
+  padding: 0.7rem 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.2s;
+}
+.input-group input:focus {
+  border: 1.5px solid #1db954;
+}
+.login-footer {
+  margin-top: 1rem;
+  text-align: right;
+}
+.back-home-btn {
+  color: #1db954;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+.back-home-btn:hover {
+  color: #159c41;
+  text-decoration: underline;
+}
+.forgot-link {
+  color: #1db954;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.2s;
+}
+.forgot-link:hover {
+  color: #159c41;
+  text-decoration: underline;
+}
+</style>
+{% endblock %}
