@@ -1,13 +1,12 @@
-html, body { height: 100%; margin: 0; padding: 0; }
-body { min-height: 100vh; display: flex; flex-direction: column; }
+html, body { min-height: 100vh; margin: 0; padding: 0; }
+body { margin: 0; padding: 0; display: block; }
 .main-flex {
   display: flex;
   flex-direction: column;
   gap: 2rem;
   justify-content: center;
   align-items: center;
-  flex: 1;
-  min-height: 70vh;
+  min-height: auto;
 }
 .search-box {
   flex: 1 1 350px;
@@ -141,17 +140,26 @@ body { min-height: 100vh; display: flex; flex-direction: column; }
 }
 @media (max-width: 600px) {
   .user-header {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
     gap: 0.7rem;
     padding: 0.7rem 2vw;
     margin: 0.7rem auto 1rem auto;
     width: 99vw;
     box-sizing: border-box;
+    justify-content: flex-start;
+  }
+  .menu-btn {
+    order: 0;
+    margin-right: 0.7rem;
   }
   .user-info {
-    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.6rem;
+    width: auto;
     justify-content: flex-start;
+    order: 1;
   }
   .user-menu {
     left: 1vw;
