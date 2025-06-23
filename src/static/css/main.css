@@ -2,14 +2,22 @@ html, body { height: 100%; margin: 0; padding: 0; }
 body { min-height: 100vh; display: flex; flex-direction: column; }
 .main-flex {
   display: flex;
-  flex-direction: column; /* Sempre em coluna */
+  flex-direction: column;
   gap: 2rem;
   justify-content: center;
   align-items: center;
   flex: 1;
   min-height: 70vh;
 }
-.search-box { flex: 1 1 350px; min-width: 320px; max-width: 420px; }
+.search-box {
+  flex: 1 1 350px;
+  min-width: 320px;
+  max-width: 420px;
+  margin-bottom: 0;
+}
+.search-box:last-child {
+  margin-bottom: 3rem;
+}
 .yt-img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem; border: 3px solid #1db954; }
 .login-btn-row {
   width: 100%;
