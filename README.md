@@ -1,6 +1,7 @@
 # Octa Music
 
-Octa Music is a simple web application built with Flask that allows you to search for artists on Spotify and view information such as name, follower count, popularity, and artist image.  
+Octa Music is a simple web application built with Flask that allows you to search for artists on Spotify and view information such as name, follower count, popularity, and artist image.
+  
 It is ideal for quickly exploring artist data using the Spotify API.
 
 ## Features
@@ -11,12 +12,7 @@ It is ideal for quickly exploring artist data using the Spotify API.
 
 ## Installation
 
-1. Clone the repository:
-   ```
-   git clone https://github.com/your-username/octa-music.git
-   cd octa-music
-   ```
-2. Run 
+1. Run 
    ```
    python -m venv venv
    venv\Scripts\activate
