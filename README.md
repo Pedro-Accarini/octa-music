@@ -59,8 +59,6 @@ set APP_ENV=development
 python src/main.py
 ```
 
-Your pipeline should set `APP_ENV` according to the branch (e.g.: `main` → production, `development` → development, `release/*` → preproduction).
-
 ## Contributing
 
 Contributions are welcome! Please read the [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
@@ -68,19 +66,6 @@ Contributions are welcome! Please read the [Code of Conduct](CODE_OF_CONDUCT.md)
 ## License
 
 Distributed under the MIT License. See the [LICENSE](LICENSE) file for more details.
-
-# Octa Music CI/CD
-
-This project uses GitHub Actions for CI/CD with two main workflows:
-
-## Workflows
-
-#### Render Deployment
-
-- Requires two GitHub secrets:
-  - `RENDER_API_KEY`: Your Render API key.
-  - `RENDER_SERVICE_ID`: Your Render service ID (must start with `srv-`, e.g., `srv-d03h38idbo4c738clsag`).
-- The deployment step triggers a deployment on Render and checks for errors in the API response.
 
 ## Setup
 
