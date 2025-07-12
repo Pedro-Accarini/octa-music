@@ -16,11 +16,7 @@ It is ideal for quickly exploring artist data using the Spotify API.
    git clone https://github.com/your-username/octa-music.git
    cd octa-music
    ```
-2. Run the setup script (Windows):
-   ```
-   setup.bat
-   ```
-   Or manually:
+2. Run 
    ```
    python -m venv venv
    venv\Scripts\activate
@@ -28,18 +24,6 @@ It is ideal for quickly exploring artist data using the Spotify API.
    copy .env.example .env
    ```
 3. Edit the `.env` file with your Spotify credentials.
-
-## Usage
-
-1. Activate the virtual environment:
-   ```
-   venv\Scripts\activate
-   ```
-2. Run the application:
-   ```
-   python src/main.py
-   ```
-3. Open [http://localhost:5000](http://localhost:5000) in your browser.
 
 ## Configuration
 
@@ -90,29 +74,6 @@ Distributed under the MIT License. See the [LICENSE](LICENSE) file for more deta
 This project uses GitHub Actions for CI/CD with two main workflows:
 
 ## Workflows
-
-### 1. Integration Workflow (`.github/workflows/Integration.yml`)
-
-Runs on pushes and pull requests to the following branches:
-- `main`
-- `development`
-- `feature/*`
-- `bugfix/*`
-- `hotfix/*`
-- `release/*`
-
-**Job: `ci-checks`**
-- Checks out the code.
-- Runs custom CI checks using `.github/actions/ci-checks`.
-
-### 2. Deployment Workflow (`.github/workflows/Deployment.yml`)
-
-Runs on pushes to the `main` branch.
-
-**Job: `deploy`**
-- Checks out the code.
-- Runs custom CD checks using `.github/actions/cd-checks`.
-- Deploys to [Render](https://render.com/) using the Render API.
 
 #### Render Deployment
 
