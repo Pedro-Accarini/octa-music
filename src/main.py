@@ -130,13 +130,17 @@ def edit_playlist(playlist_id):
     playlist = Playlist.query.get_or_404(playlist_id)
     
     if request.method == "POST":
-        playlist.name = request.form.get("name")
-        playlist.description = request.form.get("description")
+        name = request.form.get("name")
+        description = request.form.get("description")
+        if not name:
+            flash("Playlist name is required", "error")
+            return redirect(url_for("edit_playlist", playlist_id=playlist_id))
+        playlist.name = name
+        playlist.description = description
         db.session.commit()
         
         flash(f'Playlist "{playlist.name}" updated successfully!', "success")
         return redirect(url_for("view_playlist", playlist_id=playlist_id))
-    
     return render_template("edit_playlist.html", playlist=playlist)
 
 @app.route("/playlists/<int:playlist_id>/delete", methods=["POST"])
