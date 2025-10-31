@@ -1,22 +1,23 @@
 name: "CI Checks"
-description: "Integration workflow for comum CI tasks"
+description: "Integration workflow for common CI tasks"
 
 inputs:
   python-version:
     description: "Python version"
     required: true
-    default: "3.8"
+    default: "3.10"
 
 runs:
   using: "composite"
   steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ inputs.python-version }}
+        cache: 'pip'
 
     - name: Install dependencies
       shell: bash
@@ -28,14 +29,14 @@ runs:
       id: unit-tests
       shell: bash
       run: |
-        pytest ./tests/test_main.py > result.log
+        pytest ./tests/test_main.py -v > result.log 2>&1
         status=$?
         if [ $status -ne 0 ]; then
-          echo "Unit tests failed! Printing result.log:" 
+          echo "❌ Unit tests failed! Printing result.log:" 
           cat result.log
           exit 1
         else
-          echo "All unit tests passed."
+          echo "✅ All unit tests passed."
         fi
         result=$(tail -n 10 result.log)
         echo "unit-tests<<EOF" >> $GITHUB_OUTPUT

@@ -5,18 +5,19 @@ inputs:
   python-version:
     description: "Python version to use"
     required: true
-    default: "3.8"
+    default: "3.10"
 
 runs:
   using: "composite"
   steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ inputs.python-version }}
+        cache: 'pip'
 
     - name: Install dependencies
       shell: bash
@@ -24,8 +25,18 @@ runs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run deployment checks
+    - name: Run deployment validation tests
       shell: bash
       run: |
-        # Add your deployment checks here, e.g., running tests, building artifacts, etc.
-        echo "Running deployment checks..."
+        echo "Running deployment validation checks..."
+        
+        # Validate Python version
+        python --version
+        
+        # Check if all required packages are installed
+        pip check
+        
+        # Run critical tests that must pass before deployment
+        pytest tests/ -v --tb=short
+        
+        echo "✅ All deployment checks passed successfully!"
