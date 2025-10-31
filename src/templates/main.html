@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Spotify & YouTube Artist Metrics{% endblock %}</title>
-  <link href="https://fonts.googleapis.com/css?family=Inter:400,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Inter:400,600,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/spotify.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/youtube.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
   <header class="user-header">
-    <button class="menu-btn" onclick="document.querySelector('.user-menu').classList.toggle('open')">&#9776;</button>
+    <button class="menu-btn" onclick="document.querySelector('.user-menu').classList.toggle('open')" aria-label="Toggle menu">&#9776;</button>
     <div class="user-info">
       {% if session.get('logged_in') %}
         <img src="https://ui-avatars.com/api/?name=User&background=1db954&color=fff&rounded=true&size=40" alt="Profile" class="user-avatar">
@@ -21,19 +21,28 @@
         <span class="user-name">Octa Music</span>
       {% endif %}
     </div>
-    <nav class="user-menu">
+    <nav class="user-menu" role="navigation">
       <a href="/">Home</a>
       <a href="{% if session.get('logged_in') %}#account{% else %}/login{% endif %}">Account</a>
       <a href="{% if session.get('logged_in') %}#config{% else %}/login{% endif %}">Configuration</a>
     </nav>
+    <button class="theme-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
+      <span class="theme-icon">🌙</span>
+    </button>
   </header>
   {% if request.endpoint == 'home' %}
   <div class="login-btn-row">
     <a href="/login" class="login-btn">Login</a>
   </div>
   {% endif %}
+  
+  <!-- Message Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+  
   {% block content %}{% endblock %}
+  
   <script>
+    // Menu toggle functionality
     document.addEventListener('click', function(e) {
       const menu = document.querySelector('.user-menu');
       const btn = document.querySelector('.menu-btn');
@@ -41,6 +50,56 @@
         menu.classList.remove('open');
       }
     });
+    
+    // Dark mode functionality
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      localStorage.setItem('darkMode', isDark);
+      updateThemeIcon(isDark);
+    }
+    
+    function updateThemeIcon(isDark) {
+      const icon = document.querySelector('.theme-icon');
+      if (icon) {
+        icon.textContent = isDark ? '☀️' : '🌙';
+      }
+    }
+    
+    // Load saved theme preference
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.body.classList.add('dark-mode');
+      updateThemeIcon(true);
+    }
+    
+    // Toast notification system
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.textContent = message;
+      
+      container.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.classList.add('show');
+      }, 10);
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+          container.removeChild(toast);
+        }, 300);
+      }, 4000);
+    }
+    
+    // Show flash messages
+    {% if error_message %}
+      showToast('{{ error_message }}', 'error');
+    {% endif %}
+    {% if success_message %}
+      showToast('{{ success_message }}', 'success');
+    {% endif %}
   </script>
 </body>
 </html>
