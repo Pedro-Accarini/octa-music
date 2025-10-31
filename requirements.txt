@@ -1,4 +1,8 @@
 Flask
+Flask-Login
+Flask-SQLAlchemy
+Flask-Bcrypt
+Flask-Migrate
 spotipy
 python-dotenv
 pytest

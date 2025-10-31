@@ -1,22 +1,26 @@
 {% extends 'main.html' %}
-{% block title %}Login | Spotify & YouTube Artist Metrics{% endblock %}
+{% block title %}Register | Spotify & YouTube Artist Metrics{% endblock %}
 {% block content %}
 <div style="display:flex;justify-content:center;align-items:center;min-height:70vh;width:100vw;">
-  <form class="login-form" method="post" action="/login">
-    <h2>Welcome back!</h2>
-    <p class="login-desc">Sign in to your account to continue exploring artist metrics.</p>
+  <form class="login-form" method="post" action="/register">
+    <h2>Create Account</h2>
+    <p class="login-desc">Sign up to start exploring artist metrics.</p>
     <div class="input-group">
       <label for="email">Email</label>
       <input type="email" id="email" name="email" placeholder="Enter your email" required>
     </div>
     <div class="input-group">
       <label for="password">Password</label>
-      <input type="password" id="password" name="password" placeholder="Enter your password" required>
+      <input type="password" id="password" name="password" placeholder="Enter your password" required minlength="6">
     </div>
-    <button type="submit" class="login-btn" style="width:100%;margin-top:1.2rem;">Sign In</button>
+    <div class="input-group">
+      <label for="confirm_password">Confirm Password</label>
+      <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm your password" required minlength="6">
+    </div>
+    <button type="submit" class="login-btn" style="width:100%;margin-top:1.2rem;">Sign Up</button>
     <div class="login-footer" style="display:flex;justify-content:space-between;align-items:center;margin-top:1.2rem;">
       <a href="/" class="back-home-btn">&#8592; Back to Home</a>
-      <a href="/register" class="forgot-link">Create account</a>
+      <a href="/login" class="forgot-link">Already have an account?</a>
     </div>
   </form>
 </div>
