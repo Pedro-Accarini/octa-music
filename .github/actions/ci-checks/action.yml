@@ -24,26 +24,34 @@ runs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run unit tests
-      id: unit-tests
+    - name: Run all tests with coverage
+      id: run-tests
       shell: bash
       run: |
-        pytest ./tests/test_main.py > result.log
+        pytest tests/ --cov=src --cov-report=term --cov-report=xml --cov-report=html -v > test_results.log 2>&1
         status=$?
         if [ $status -ne 0 ]; then
-          echo "Unit tests failed! Printing result.log:" 
-          cat result.log
+          echo "Tests failed! Printing test_results.log:" 
+          cat test_results.log
           exit 1
         else
-          echo "All unit tests passed."
+          echo "All tests passed."
         fi
-        result=$(tail -n 10 result.log)
-        echo "unit-tests<<EOF" >> $GITHUB_OUTPUT
+        result=$(tail -n 20 test_results.log)
+        echo "test-results<<EOF" >> $GITHUB_OUTPUT
         echo "$result" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
 
-    - name: Archive code unit tests results
+    - name: Upload coverage reports
       uses: actions/upload-artifact@v4
       with:
-        name: unit-tests-results
-        path: result.log
+        name: coverage-reports
+        path: |
+          coverage.xml
+          htmlcov/
+          
+    - name: Archive test results
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results
+        path: test_results.log

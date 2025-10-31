@@ -2,4 +2,7 @@ Flask
 spotipy
 python-dotenv
 pytest
+pytest-cov
+pytest-mock
+responses
 gunicorn
