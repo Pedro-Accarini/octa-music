@@ -292,6 +292,43 @@
 .social-login-prompt a:hover {
   text-decoration: underline;
 }
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 15px 20px;
+  background: #333;
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+  z-index: 10000;
+  max-width: 300px;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast-success {
+  background: #1db954;
+}
+
+.toast-error {
+  background: #ff4458;
+}
+
+.toast-warning {
+  background: #ff9500;
+}
+
+.toast-info {
+  background: #3498db;
+}
 </style>
 
 <script>
@@ -422,7 +459,7 @@ async function addComment() {
   const content = commentInput.value.trim();
   
   if (!content) {
-    alert('Please enter a comment');
+    showToast('Please enter a comment', 'warning');
     return;
   }
   
@@ -441,9 +478,11 @@ async function addComment() {
     if (data.success) {
       commentInput.value = '';
       loadComments();
+      showToast('Comment posted successfully!', 'success');
     }
   } catch (error) {
     console.error('Error adding comment:', error);
+    showToast('Failed to post comment', 'error');
   }
 }
 
@@ -457,13 +496,28 @@ async function loadComments() {
     if (data.comments.length === 0) {
       commentsList.innerHTML = '<p style="text-align:center;color:#999;font-style:italic;">No comments yet. Be the first to comment!</p>';
     } else {
-      commentsList.innerHTML = data.comments.map(comment => `
-        <div class="comment-item">
-          <div class="comment-author">${comment.username}</div>
-          <div class="comment-text">${comment.content}</div>
-          <div class="comment-date">${comment.created_at}</div>
-        </div>
-      `).join('');
+      commentsList.innerHTML = '';
+      data.comments.forEach(comment => {
+        const commentDiv = document.createElement('div');
+        commentDiv.className = 'comment-item';
+        
+        const authorDiv = document.createElement('div');
+        authorDiv.className = 'comment-author';
+        authorDiv.textContent = comment.username;
+        
+        const textDiv = document.createElement('div');
+        textDiv.className = 'comment-text';
+        textDiv.textContent = comment.content;
+        
+        const dateDiv = document.createElement('div');
+        dateDiv.className = 'comment-date';
+        dateDiv.textContent = comment.created_at;
+        
+        commentDiv.appendChild(authorDiv);
+        commentDiv.appendChild(textDiv);
+        commentDiv.appendChild(dateDiv);
+        commentsList.appendChild(commentDiv);
+      });
     }
   } catch (error) {
     console.error('Error loading comments:', error);
@@ -485,14 +539,40 @@ async function shareArtist() {
     if (data.success) {
       // Copy to clipboard
       navigator.clipboard.writeText(data.share_url).then(() => {
-        alert('Share link copied to clipboard!\n\n' + data.share_url);
+        showToast('Share link copied to clipboard!', 'success');
       }).catch(() => {
-        prompt('Copy this link to share:', data.share_url);
+        // Fallback for browsers that don't support clipboard API
+        const tempInput = document.createElement('input');
+        tempInput.value = data.share_url;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        showToast('Share link copied to clipboard!', 'success');
       });
     }
   } catch (error) {
     console.error('Error sharing artist:', error);
+    showToast('Failed to generate share link', 'error');
   }
+}
+
+// Toast notification system
+function showToast(message, type = 'info') {
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.textContent = message;
+  
+  document.body.appendChild(toast);
+  
+  // Trigger animation
+  setTimeout(() => toast.classList.add('show'), 10);
+  
+  // Remove after 3 seconds
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => document.body.removeChild(toast), 300);
+  }, 3000);
 }
 </script>
 {% endblock %}

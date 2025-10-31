@@ -19,7 +19,13 @@ from src.models import db, User, Song, Like, Rating, Comment, Share, Activity
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "octa-music-secret")
+secret_key = os.getenv("SECRET_KEY")
+if not secret_key:
+    if app.config.get('TESTING'):
+        secret_key = 'test-secret-key'
+    else:
+        raise ValueError("SECRET_KEY environment variable must be set. Generate one with: python -c 'import secrets; print(secrets.token_hex(32))'")
+app.secret_key = secret_key
 
 app_env = os.getenv("APP_ENV", "development").lower()
 

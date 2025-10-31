@@ -9,6 +9,13 @@ It is ideal for quickly exploring artist data using the Spotify API.
 - Search for artists by name using the official Spotify API
 - Display relevant artist information (name, followers, popularity, image)
 - Simple and responsive web interface
+- **User authentication** - Register and login to access social features
+- **Like/Favorite songs** - Save your favorite artists and songs
+- **Rate artists** - Rate artists on a 1-5 star scale
+- **Comment system** - Share your thoughts on artists and songs
+- **Share songs** - Generate shareable links to share with friends
+- **User profiles** - View your favorites, ratings, comments, and activity feed
+- **Activity tracking** - See a timeline of your musical interactions
 
 ## Installation
 
@@ -23,14 +30,20 @@ It is ideal for quickly exploring artist data using the Spotify API.
 
 ## Configuration
 
-The `.env` file must contain your Spotify credentials:
+The `.env` file must contain your Spotify credentials and a secure secret key:
 
 ```
 SPOTIPY_CLIENT_ID=your_client_id
 SPOTIPY_CLIENT_SECRET=your_client_secret
+SECRET_KEY=your_secret_key_here
 ```
 
-You can obtain these credentials at https://developer.spotify.com/dashboard/applications
+You can obtain Spotify credentials at https://developer.spotify.com/dashboard/applications
+
+Generate a secure secret key with:
+```bash
+python -c 'import secrets; print(secrets.token_hex(32))'
+```
 
 ## Environments (dev, pre, prod)
 
