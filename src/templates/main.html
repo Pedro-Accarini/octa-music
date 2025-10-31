@@ -11,20 +11,7 @@
   <meta property="og:url" content="https://octa-music.onrender.com">
   <title>{% block title %}Spotify & YouTube Artist Metrics{% endblock %}</title>
   <link href="https://fonts.googleapis.com/css?family=Inter:400,600&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            spotify: '#1db954',
-            'spotify-dark': '#159c41',
-          }
-        }
-      }
-    }
-  </script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind-alternative.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/spotify.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/youtube.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
