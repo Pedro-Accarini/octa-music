@@ -26,6 +26,9 @@ class SpotifyService:
     
     def search_tracks(self, query, limit=10):
         """Search for tracks on Spotify"""
+        # Validate query: must be a non-empty string
+        if not isinstance(query, str) or not query.strip():
+            return []
         results = self.sp.search(q=query, type='track', limit=limit)
         tracks = []
         if results['tracks']['items']:
