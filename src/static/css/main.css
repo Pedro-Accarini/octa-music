@@ -42,6 +42,90 @@ body { margin: 0; padding: 0; display: block; }
 .login-btn:hover {
   background: #159c41;
 }
+.clear-btn-row {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 3rem;
+  margin-top: 1rem;
+}
+.clear-btn {
+  padding: 0.5rem 1.5rem;
+  background: #e74c3c;
+  color: #fff;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px rgba(231,76,60,0.08);
+  transition: background 0.2s;
+  border: none;
+  cursor: pointer;
+}
+.clear-btn:hover {
+  background: #c0392b;
+}
+.flash-messages {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  max-width: 400px;
+}
+.flash-message {
+  padding: 1rem 2.5rem 1rem 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  position: relative;
+  animation: slideIn 0.3s ease-out;
+  transition: opacity 0.3s;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+.flash-success {
+  background: #d4edda;
+  color: #155724;
+  border-left: 4px solid #28a745;
+}
+.flash-error {
+  background: #f8d7da;
+  color: #721c24;
+  border-left: 4px solid #dc3545;
+}
+.flash-info {
+  background: #d1ecf1;
+  color: #0c5460;
+  border-left: 4px solid #17a2b8;
+}
+.flash-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  padding: 0;
+  line-height: 1;
+}
+.flash-close:hover {
+  opacity: 1;
+}
 .user-header {
   width: 96vw;
   max-width: 1100px;
@@ -137,6 +221,11 @@ body { margin: 0; padding: 0; display: block; }
     max-width: 98vw;
     width: 100%;
   }
+  .flash-messages {
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
 }
 @media (max-width: 600px) {
   .user-header {
@@ -182,5 +271,14 @@ body { margin: 0; padding: 0; display: block; }
   .login-btn-row {
     margin-top: 1.2rem;
     margin-bottom: 1.2rem;
+  }
+  .flash-messages {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+  }
+  .flash-message {
+    font-size: 0.9rem;
+    padding: 0.8rem 2rem 0.8rem 0.8rem;
   }
 }

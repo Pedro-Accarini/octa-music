@@ -3,6 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Search and explore music artist statistics from Spotify and YouTube. Get detailed metrics on followers, popularity, subscribers, and more.">
+  <meta name="keywords" content="spotify, youtube, artist statistics, music metrics, artist search, music analytics">
+  <meta property="og:title" content="Octa Music - Artist Statistics">
+  <meta property="og:description" content="Search and explore music artist statistics from Spotify and YouTube">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://octa-music.onrender.com">
   <title>{% block title %}Spotify & YouTube Artist Metrics{% endblock %}</title>
   <link href="https://fonts.googleapis.com/css?family=Inter:400,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/spotify.css') }}">
@@ -11,7 +17,7 @@
 </head>
 <body>
   <header class="user-header">
-    <button class="menu-btn" onclick="document.querySelector('.user-menu').classList.toggle('open')">&#9776;</button>
+    <button class="menu-btn" onclick="document.querySelector('.user-menu').classList.toggle('open')" aria-label="Toggle menu">&#9776;</button>
     <div class="user-info">
       {% if session.get('logged_in') %}
         <img src="https://ui-avatars.com/api/?name=User&background=1db954&color=fff&rounded=true&size=40" alt="Profile" class="user-avatar">
@@ -21,7 +27,7 @@
         <span class="user-name">Octa Music</span>
       {% endif %}
     </div>
-    <nav class="user-menu">
+    <nav class="user-menu" role="navigation">
       <a href="/">Home</a>
       <a href="{% if session.get('logged_in') %}#account{% else %}/login{% endif %}">Account</a>
       <a href="{% if session.get('logged_in') %}#config{% else %}/login{% endif %}">Configuration</a>
@@ -32,6 +38,20 @@
     <a href="/login" class="login-btn">Login</a>
   </div>
   {% endif %}
+  
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-messages">
+        {% for category, message in messages %}
+          <div class="flash-message flash-{{ category }}" role="alert">
+            {{ message }}
+            <button class="flash-close" onclick="this.parentElement.remove()" aria-label="Close message">&times;</button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+  
   {% block content %}{% endblock %}
   <script>
     document.addEventListener('click', function(e) {
@@ -41,6 +61,15 @@
         menu.classList.remove('open');
       }
     });
+    
+    // Auto-hide flash messages after 5 seconds
+    setTimeout(function() {
+      const flashMessages = document.querySelectorAll('.flash-message');
+      flashMessages.forEach(function(msg) {
+        msg.style.opacity = '0';
+        setTimeout(function() { msg.remove(); }, 300);
+      });
+    }, 5000);
   </script>
 </body>
 </html>

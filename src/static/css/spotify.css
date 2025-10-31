@@ -75,6 +75,26 @@ button[type="submit"]:hover {
   font-size: 1rem;
   margin-bottom: 0.3rem;
 }
+.artist-description {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.7rem;
+  font-style: italic;
+}
+.top-video-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #ddd;
+}
+.top-video-label {
+  margin-bottom: 0.4rem;
+  color: #e74c3c;
+}
+.top-video-title {
+  font-size: 0.95rem;
+  color: #333;
+  margin-bottom: 0.4rem;
+}
 .artist-link {
   display: inline-block;
   margin-top: 0.7rem;

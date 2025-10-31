@@ -1,5 +1,13 @@
 import requests
 
+def format_number(num_str):
+    """Format numbers with thousand separators."""
+    try:
+        num = int(num_str)
+        return f"{num:,}"
+    except (ValueError, TypeError):
+        return num_str
+
 def get_top_video_quick(channel_id, api_key):
     url = f"https://www.googleapis.com/youtube/v3/search?key={api_key}&channelId={channel_id}&part=snippet,id&order=viewCount&maxResults=1&type=video"
     resp = requests.get(url)
@@ -34,13 +42,13 @@ def get_channel_stats(channel_id, api_key):
             return {
                 'title': snippet.get('title'),
                 'description': snippet.get('description'),
-                'subscribers': stats.get('subscriberCount'),
-                'views': stats.get('viewCount'),
-                'video_count': stats.get('videoCount'),
+                'subscribers': format_number(stats.get('subscriberCount', '0')),
+                'views': format_number(stats.get('viewCount', '0')),
+                'video_count': format_number(stats.get('videoCount', '0')),
                 'channel_url': f"https://www.youtube.com/channel/{channel_id}",
                 'image_url': snippet.get('thumbnails', {}).get('high', {}).get('url'),
                 'top_video_url': top_video['url'] if top_video else None,
-                'top_video_views': top_video['views'] if top_video else None,
+                'top_video_views': format_number(top_video['views']) if top_video else None,
                 'top_video_title': top_video['title'] if top_video else None
             }
     return None

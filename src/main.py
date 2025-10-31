@@ -7,7 +7,7 @@ try:
 except ImportError:
     __version__ = "unknown"
 
-from flask import Flask, request, render_template, session, redirect, url_for
+from flask import Flask, request, render_template, session, redirect, url_for, flash
 from dotenv import load_dotenv
 from src.config import DevelopmentConfig, PreproductionConfig, ProductionConfig, Config
 from src.services.spotify_service import SpotifyService
@@ -40,13 +40,35 @@ def home():
         if action == "spotify":
             artist_name = request.form.get("artist_name")
             if artist_name:
-                artist = spotify_service.search_artist(artist_name)
-                session['artist'] = artist
+                try:
+                    artist = spotify_service.search_artist(artist_name)
+                    if artist:
+                        session['artist'] = artist
+                        flash(f'Found artist: {artist["name"]}', 'success')
+                    else:
+                        session['artist'] = None
+                        flash(f'No artist found for "{artist_name}". Please try another search.', 'error')
+                except Exception as e:
+                    session['artist'] = None
+                    flash('An error occurred while searching Spotify. Please try again.', 'error')
         elif action == "youtube":
             channel_name = request.form.get("channel_name")
             if channel_name:
-                yt_stats = get_channel_stats_by_name(channel_name, YOUTUBE_API_KEY)
-                session['yt_stats'] = yt_stats
+                try:
+                    yt_stats = get_channel_stats_by_name(channel_name, YOUTUBE_API_KEY)
+                    if yt_stats:
+                        session['yt_stats'] = yt_stats
+                        flash(f'Found channel: {yt_stats["title"]}', 'success')
+                    else:
+                        session['yt_stats'] = None
+                        flash(f'No channel found for "{channel_name}". Please try another search.', 'error')
+                except Exception as e:
+                    session['yt_stats'] = None
+                    flash('An error occurred while searching YouTube. Please try again.', 'error')
+        elif action == "clear":
+            session.pop('artist', None)
+            session.pop('yt_stats', None)
+            flash('Search results cleared.', 'info')
         return redirect(url_for('home'))
     artist = session.get('artist')
     yt_stats = session.get('yt_stats')
