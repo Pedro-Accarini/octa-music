@@ -1,0 +1,51 @@
+{% extends 'main.html' %}
+{% block title %}Add Songs to {{ playlist.name }}{% endblock %}
+{% block content %}
+<div class="container search-songs-container">
+  <h1>Add Songs to "{{ playlist.name }}"</h1>
+  
+  <form method="GET" action="{{ url_for('search_songs', playlist_id=playlist.id) }}" class="search-form">
+    <input type="text" name="q" placeholder="Search for songs, artists, or albums..." value="{{ query }}" autocomplete="off" required>
+    <button type="submit" class="btn-primary">Search</button>
+  </form>
+  
+  <a href="{{ url_for('view_playlist', playlist_id=playlist.id) }}" class="btn-secondary back-btn">Back to Playlist</a>
+  
+  {% if tracks %}
+    <div class="search-results">
+      <h2>Search Results</h2>
+      {% for track in tracks %}
+        <div class="track-item">
+          {% if track.image_url %}
+            <img src="{{ track.image_url }}" alt="{{ track.name }}" class="track-image">
+          {% endif %}
+          <div class="track-info">
+            <div class="track-name">{{ track.name }}</div>
+            <div class="track-artist">{{ track.artist }}</div>
+            <div class="track-album">{{ track.album }}</div>
+          </div>
+          <div class="track-duration">
+            {% if track.duration_ms %}
+              {{ (track.duration_ms // 60000)|int }}:{{ '%02d'|format((track.duration_ms % 60000) // 1000) }}
+            {% endif %}
+          </div>
+          <form method="POST" action="{{ url_for('add_song_to_playlist', playlist_id=playlist.id) }}" class="add-song-form">
+            <input type="hidden" name="track_id" value="{{ track.id }}">
+            <input type="hidden" name="track_name" value="{{ track.name }}">
+            <input type="hidden" name="artist_name" value="{{ track.artist }}">
+            <input type="hidden" name="album_name" value="{{ track.album }}">
+            <input type="hidden" name="duration_ms" value="{{ track.duration_ms }}">
+            <input type="hidden" name="image_url" value="{{ track.image_url }}">
+            <input type="hidden" name="spotify_url" value="{{ track.spotify_url }}">
+            <button type="submit" class="btn-add">Add</button>
+          </form>
+        </div>
+      {% endfor %}
+    </div>
+  {% elif query %}
+    <div class="no-results">
+      <p>No songs found for "{{ query }}". Try a different search.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

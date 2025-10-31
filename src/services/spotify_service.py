@@ -23,3 +23,42 @@ class SpotifyService:
                 'spotify_url': a['external_urls']['spotify'] if 'external_urls' in a and 'spotify' in a['external_urls'] else None,
             }
         return None
+    
+    def search_tracks(self, query, limit=10):
+        """Search for tracks on Spotify"""
+        # Validate query: must be a non-empty string
+        if not isinstance(query, str) or not query.strip():
+            return []
+        results = self.sp.search(q=query, type='track', limit=limit)
+        tracks = []
+        if results['tracks']['items']:
+            for t in results['tracks']['items']:
+                track = {
+                    'id': t['id'],
+                    'name': t['name'],
+                    'artist': ', '.join([artist['name'] for artist in t['artists']]),
+                    'album': t['album']['name'],
+                    'duration_ms': t['duration_ms'],
+                    'image_url': t['album']['images'][0]['url'] if t['album']['images'] else None,
+                    'spotify_url': t['external_urls']['spotify'] if 'external_urls' in t and 'spotify' in t['external_urls'] else None,
+                    'preview_url': t.get('preview_url')
+                }
+                tracks.append(track)
+        return tracks
+    
+    def get_track(self, track_id):
+        """Get track details by Spotify track ID"""
+        try:
+            t = self.sp.track(track_id)
+            return {
+                'id': t['id'],
+                'name': t['name'],
+                'artist': ', '.join([artist['name'] for artist in t['artists']]),
+                'album': t['album']['name'],
+                'duration_ms': t['duration_ms'],
+                'image_url': t['album']['images'][0]['url'] if t['album']['images'] else None,
+                'spotify_url': t['external_urls']['spotify'] if 'external_urls' in t and 'spotify' in t['external_urls'] else None,
+                'preview_url': t.get('preview_url')
+            }
+        except Exception:
+            return None

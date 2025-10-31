@@ -1,0 +1,79 @@
+{% extends 'main.html' %}
+{% block title %}{{ playlist.name }}{% endblock %}
+{% block content %}
+<div class="container playlist-view-container">
+  <div class="playlist-header">
+    <div class="playlist-info-header">
+      <div class="playlist-icon-large">🎵</div>
+      <div>
+        <h1>{{ playlist.name }}</h1>
+        {% if playlist.description %}
+          <p class="playlist-description">{{ playlist.description }}</p>
+        {% endif %}
+        <p class="playlist-meta">{{ playlist.songs|length }} song{% if playlist.songs|length != 1 %}s{% endif %} • Created {{ playlist.created_at.strftime('%b %d, %Y') }}</p>
+      </div>
+    </div>
+    <div class="playlist-actions-header">
+      <a href="{{ url_for('search_songs', playlist_id=playlist.id) }}" class="btn-primary">Add Songs</a>
+      <a href="{{ url_for('edit_playlist', playlist_id=playlist.id) }}" class="btn-secondary">Edit Playlist</a>
+      <a href="{{ url_for('playlists') }}" class="btn-secondary">Back to Playlists</a>
+    </div>
+  </div>
+  
+  {% if playlist.songs %}
+    <div class="songs-list">
+      <table class="songs-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Title</th>
+            <th>Artist</th>
+            <th>Album</th>
+            <th>Duration</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for song in playlist.songs %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td>
+                <div class="song-title-cell">
+                  {% if song.image_url %}
+                    <img src="{{ song.image_url }}" alt="{{ song.track_name }}" class="song-thumbnail">
+                  {% endif %}
+                  <div>
+                    <div class="song-name">{{ song.track_name }}</div>
+                    {% if song.spotify_url %}
+                      <a href="{{ song.spotify_url }}" target="_blank" rel="noopener noreferrer" class="spotify-link">Play on Spotify</a>
+                    {% endif %}
+                  </div>
+                </div>
+              </td>
+              <td>{{ song.artist_name }}</td>
+              <td>{{ song.album_name or 'N/A' }}</td>
+              <td>
+                {% if song.duration_ms %}
+                  {{ (song.duration_ms // 60000)|int }}:{{ '%02d'|format((song.duration_ms % 60000) // 1000) }}
+                {% else %}
+                  N/A
+                {% endif %}
+              </td>
+              <td>
+                <form method="POST" action="{{ url_for('remove_song_from_playlist', playlist_id=playlist.id, song_id=song.id) }}" style="display: inline;">
+                  <button type="submit" class="btn-remove" onclick="return confirm('Remove this song from the playlist?');">Remove</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <p>This playlist is empty.</p>
+      <a href="{{ url_for('search_songs', playlist_id=playlist.id) }}" class="btn-primary">Add Your First Song</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
