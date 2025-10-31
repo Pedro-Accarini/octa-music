@@ -1,0 +1,50 @@
+@echo off
+REM Local CI checks script for developers (Windows)
+REM Run this before pushing your code to ensure CI will pass
+
+echo.
+echo 🚀 Running local CI checks...
+echo.
+
+echo 📦 Installing dependencies...
+python -m pip install -q -r requirements.txt
+python -m pip install -q flake8 black pylint mypy pytest-cov
+
+echo.
+echo 🔍 Checking code formatting with Black...
+black --check --diff src\ tests\
+if errorlevel 1 (
+    echo ❌ Code formatting issues found!
+    echo Run 'black src\ tests\' to fix
+    exit /b 1
+)
+echo ✅ Code formatting check passed
+
+echo.
+echo 🔍 Linting with Flake8...
+flake8 src\ tests\ --count --select=E9,F63,F7,F82 --show-source --statistics
+flake8 src\ tests\ --count --max-complexity=10 --max-line-length=127 --statistics --exit-zero
+echo ✅ Linting passed
+
+echo.
+echo 🔍 Running Pylint...
+pylint src\ --exit-zero
+echo ✅ Static analysis complete
+
+echo.
+echo 🔍 Type checking with Mypy...
+mypy src\ --ignore-missing-imports --no-strict-optional
+echo ✅ Type checking complete
+
+echo.
+echo 🧪 Running tests with coverage...
+pytest tests\ -v --cov=src --cov-report=term --cov-report=html
+if errorlevel 1 (
+    echo ❌ Tests failed!
+    exit /b 1
+)
+echo ✅ All tests passed
+
+echo.
+echo ✨ All local CI checks passed! You're ready to push.
+echo 📊 Coverage report generated in htmlcov\index.html

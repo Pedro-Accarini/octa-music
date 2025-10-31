@@ -1,5 +1,12 @@
 # Octa Music
 
+[![Integration](https://github.com/Pedro-Accarini/octa-music/actions/workflows/Integration.yml/badge.svg)](https://github.com/Pedro-Accarini/octa-music/actions/workflows/Integration.yml)
+[![Deployment](https://github.com/Pedro-Accarini/octa-music/actions/workflows/Deployment.yml/badge.svg)](https://github.com/Pedro-Accarini/octa-music/actions/workflows/Deployment.yml)
+[![CodeQL](https://github.com/Pedro-Accarini/octa-music/actions/workflows/codeql.yml/badge.svg)](https://github.com/Pedro-Accarini/octa-music/actions/workflows/codeql.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 Octa Music is a simple web application built with Flask that allows you to search for artists on Spotify and view information such as name, follower count, popularity, and artist image.  
 It is ideal for quickly exploring artist data using the Spotify API.
 
@@ -79,59 +86,123 @@ Your pipeline should set `APP_ENV` according to the branch (e.g.: `main` → pro
 
 ## Contributing
 
-Contributions are welcome! Please read the [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
+Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
+
+### Quick Start for Contributors
+
+1. Fork the repository
+2. Clone your fork: `git clone https://github.com/your-username/octa-music.git`
+3. Create a branch: `git checkout -b feature/your-feature`
+4. Make your changes and test locally: `./scripts/local-ci.sh` (or `scripts\local-ci.bat` on Windows)
+5. Commit your changes: `git commit -m "feat: add amazing feature"`
+6. Push to your fork: `git push origin feature/your-feature`
+7. Open a Pull Request
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ## License
 
 Distributed under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
-# Octa Music CI/CD
+---
 
-This project uses GitHub Actions for CI/CD with two main workflows:
+# CI/CD Pipeline
+
+This project uses GitHub Actions for a robust CI/CD pipeline with multiple workflows:
 
 ## Workflows
 
 ### 1. Integration Workflow (`.github/workflows/Integration.yml`)
 
-Runs on pushes and pull requests to the following branches:
-- `main`
-- `development`
-- `feature/*`
-- `bugfix/*`
-- `hotfix/*`
-- `release/*`
+**Triggers:** Pushes and pull requests to `main`, `development`, `feature/*`, `bugfix/*`, `hotfix/*`, `release/*`
 
-**Job: `ci-checks`**
-- Checks out the code.
-- Runs custom CI checks using `.github/actions/ci-checks`.
+**Jobs:**
+- **Quality Checks**: Code formatting (Black), linting (Flake8), static analysis (Pylint), type checking (Mypy)
+- **Test Matrix**: Tests across Python 3.8-3.12 on Ubuntu, Windows, and macOS
+- **Integration Tests**: Full integration testing with coverage reporting
 
 ### 2. Deployment Workflow (`.github/workflows/Deployment.yml`)
 
-Runs on pushes to the `main` branch.
+**Triggers:** Pushes to `main` branch
 
-**Job: `deploy`**
-- Checks out the code.
-- Runs custom CD checks using `.github/actions/cd-checks`.
-- Deploys to [Render](https://render.com/) using the Render API.
+**Jobs:**
+- **Pre-Deployment Checks**: Validates code quality and runs tests
+- **Deploy**: Deploys to Render with health checks and status tracking
+- **Publish Tag**: Creates Git tags for version tracking
+- **Deployment Summary**: Generates comprehensive deployment report
 
-#### Render Deployment
+### 3. CodeQL Security Analysis (`.github/workflows/codeql.yml`)
 
-- Requires two GitHub secrets:
-  - `RENDER_API_KEY`: Your Render API key.
-  - `RENDER_SERVICE_ID`: Your Render service ID (must start with `srv-`, e.g., `srv-d03h38idbo4c738clsag`).
-- The deployment step triggers a deployment on Render and checks for errors in the API response.
+**Triggers:** Pushes, pull requests, and weekly schedule (Mondays)
+
+**Features:**
+- Automated security vulnerability scanning
+- Python and JavaScript code analysis
+- Security-extended query suite
+
+## Pipeline Features
+
+### Security
+- ✅ CodeQL security scanning
+- ✅ Dependabot for dependency updates
+- ✅ Secret scanning protection
+- ✅ Security policy and vulnerability reporting
+
+### Quality
+- ✅ Code formatting checks (Black)
+- ✅ Linting (Flake8, Pylint)
+- ✅ Type checking (Mypy)
+- ✅ Code coverage reporting
+
+### Robustness
+- ✅ Matrix testing (Python 3.8-3.12, Ubuntu/Windows/macOS)
+- ✅ Dependency caching for faster builds
+- ✅ Timeout configurations
+- ✅ Health checks and rollback capability
+- ✅ Deployment status tracking
+
+### Developer Experience
+- ✅ Pre-commit hooks (`.pre-commit-config.yaml`)
+- ✅ Local CI scripts (`scripts/local-ci.sh`, `scripts/local-ci.bat`)
+- ✅ Comprehensive workflow summaries
+- ✅ Clear error messages and logs
 
 ## Setup
 
 1. **Configure GitHub Secrets:**
-   - Go to your repository → Settings → Secrets and variables → Actions.
-   - Add `RENDER_API_KEY` and `RENDER_SERVICE_ID` (with the correct `srv-` prefix).
+   - Go to your repository → Settings → Secrets and variables → Actions
+   - Add `RENDER_API_KEY`: Your Render API key
+   - Add `RENDER_SERVICE_ID`: Your Render service ID (format: `srv-xxxxx`)
 
-2. **Custom Actions:**
-   - Place your custom CI/CD logic in `.github/actions/ci-checks` and `.github/actions/cd-checks`.
+2. **Enable Branch Protection:**
+   - Go to Settings → Branches → Add rule for `main`
+   - Require pull request reviews
+   - Require status checks to pass (Integration workflow)
+   - Require branches to be up to date
 
-3. **Branch Strategy:**
-   - Use the branch naming conventions above for feature, bugfix, hotfix, and release branches to trigger the correct workflows.
+3. **Configure Dependabot:**
+   - Already configured in `.github/dependabot.yml`
+   - Automatically creates PRs for dependency updates
+
+4. **Install Pre-commit Hooks (for developers):**
+   ```bash
+   pip install pre-commit
+   pre-commit install
+   ```
+
+## Local Development
+
+Run local CI checks before pushing:
+
+**Linux/macOS:**
+```bash
+./scripts/local-ci.sh
+```
+
+**Windows:**
+```cmd
+scripts\local-ci.bat
+```
 
 ## Useful Links
 

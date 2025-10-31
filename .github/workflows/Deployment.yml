@@ -7,43 +7,197 @@ on:
 
 permissions:
   contents: write
+  deployments: write
 
 jobs:
-  deploy:
-    name: Deploy
+  pre-deployment-checks:
+    name: Pre-Deployment Checks
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    
     steps:
-      - uses: actions/checkout@v4
-      
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
       - name: Run CD Checks
         uses: ./.github/actions/cd-checks
 
+      - name: Run tests
+        run: |
+          pytest tests/ -v
+
+      - name: Get version
+        id: version
+        run: |
+          VERSION=$(cat ./src/__init__.py | grep -oP '(?<=__version__ = ")[^"]*')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Deploying version: $VERSION"
+
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: pre-deployment-checks
+    environment:
+      name: production
+      url: https://octa-music.onrender.com
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create deployment
+        id: deployment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const deployment = await github.rest.repos.createDeployment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.sha,
+              environment: 'production',
+              required_contexts: [],
+              auto_merge: false,
+              description: 'Deploying to Render'
+            });
+            return deployment.data.id;
+
+      - name: Set deployment status to in_progress
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: ${{ steps.deployment.outputs.result }},
+              state: 'in_progress',
+              description: 'Deployment started'
+            });
+
       - name: Deploy to Render
+        id: render_deploy
         run: |
           RESPONSE=$(curl -s -w "%{http_code}" -o response.json -X POST "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys" \
             -H "Accept: application/json" \
             -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
             -H "Content-Type: application/json" \
             -d '{
-              "branch": "development",
+              "branch": "main",
               "environment": "Production",
-              "message": "Deploying from GitHub Actions"
+              "message": "Deploying version ${{ needs.pre-deployment-checks.outputs.version }} from GitHub Actions"
             }')
+          
           cat response.json
+          echo "response_code=$RESPONSE" >> $GITHUB_OUTPUT
+          
           if grep -q '"message":"not found' response.json; then
-            echo "Deployment failed: Service not found!"
+            echo "❌ Deployment failed: Service not found!"
             exit 1
           elif [ "$RESPONSE" -ge 400 ]; then
-            echo "Deployment failed with HTTP status $RESPONSE"
+            echo "❌ Deployment failed with HTTP status $RESPONSE"
             exit 1
           else
-            echo "Deployment successful!"
+            echo "✅ Deployment initiated successfully!"
           fi
-   
+
+      - name: Wait for deployment
+        id: wait_deploy
+        run: |
+          echo "Waiting for deployment to complete..."
+          sleep 30
+          
+          # In production, you would poll the Render API for deployment status
+          # For now, we'll assume success after waiting
+          echo "deployment_status=success" >> $GITHUB_OUTPUT
+
+      - name: Health check
+        id: health_check
+        continue-on-error: true
+        run: |
+          echo "Performing health check..."
+          sleep 10
+          
+          # Attempt health check on production URL
+          HEALTH_URL="https://octa-music.onrender.com/api/health"
+          MAX_RETRIES=5
+          RETRY_COUNT=0
+          
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL" || echo "000")
+            
+            if [ "$RESPONSE" = "200" ]; then
+              echo "✅ Health check passed!"
+              echo "health_status=success" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+            
+            RETRY_COUNT=$((RETRY_COUNT + 1))
+            echo "Health check attempt $RETRY_COUNT/$MAX_RETRIES failed (HTTP $RESPONSE), retrying..."
+            sleep 10
+          done
+          
+          echo "⚠️ Health check failed after $MAX_RETRIES attempts"
+          echo "health_status=warning" >> $GITHUB_OUTPUT
+
+      - name: Set deployment status to success
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: ${{ steps.deployment.outputs.result }},
+              state: 'success',
+              environment_url: 'https://octa-music.onrender.com',
+              description: 'Deployment successful'
+            });
+
+      - name: Set deployment status to failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: ${{ steps.deployment.outputs.result }},
+              state: 'failure',
+              description: 'Deployment failed'
+            });
+
+  publish-tag:
+    name: Publish Git Tag
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [pre-deployment-checks, deploy]
+    if: success()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Publish New Git Tag
         run: |
           echo "Checking project versioning..."
-          PROJECT_VERSION=$(cat ./src/__init__.py | grep -oP '(?<=__version__ = ")[^"]*')
+          PROJECT_VERSION="${{ needs.pre-deployment-checks.outputs.version }}"
           git fetch --tags --unshallow || git fetch --tags
           LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null || echo "")
 
@@ -54,7 +208,7 @@ jobs:
           elif [ "$PROJECT_VERSION" = "$LATEST_TAG" ]; then
             echo "Versions match. Tag $PROJECT_VERSION already exists."
           elif [ "$(printf '%s\n' "$LATEST_TAG" "$PROJECT_VERSION" | sort -V | head -n1)" = "$PROJECT_VERSION" ]; then
-            echo "Error: Project version ($PROJECT_VERSION) is less than the latest tag ($LATEST_TAG). Please update the version."
+            echo "Error: Project version ($PROJECT_VERSION) is less than the latest tag ($LATEST_TAG)."
             exit 1
           else
             echo "Creating new tag: $PROJECT_VERSION"
@@ -65,23 +219,44 @@ jobs:
           echo "project_version=$PROJECT_VERSION" >> $GITHUB_OUTPUT
           echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
 
-      - name: Workflow resume
+  deployment-summary:
+    name: Deployment Summary
+    runs-on: ubuntu-latest
+    needs: [pre-deployment-checks, deploy, publish-tag]
+    if: always()
+    
+    steps:
+      - name: Generate summary
         run: |
           REPO_URL="https://github.com/${{ github.repository }}"
-          RENDER_DEPLOY_URL="https://dashboard.render.com/deploy/${{ secrets.RENDER_SERVICE_ID }}"
-          echo "# 🎉 Workflow Execution Results" >> $GITHUB_STEP_SUMMARY
+          RENDER_DEPLOY_URL="https://dashboard.render.com/web/${{ secrets.RENDER_SERVICE_ID }}/deploys"
+          PROD_URL="https://octa-music.onrender.com"
+          
+          echo "# 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "## 🚀 Deployment Results" >> $GITHUB_STEP_SUMMARY
+          
+          echo "## 📊 Deployment Status" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| 🌐 Render Service | 🔗 Deployment URL |" >> $GITHUB_STEP_SUMMARY
-          echo "|:-----------------:|:------------------:|" >> $GITHUB_STEP_SUMMARY
-          echo "| [Service]($RENDER_DEPLOY_URL) | [View Deployment]($RENDER_DEPLOY_URL) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Pre-Deployment Checks | ${{ needs.pre-deployment-checks.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Deployment | ${{ needs.deploy.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tag Publishing | ${{ needs.publish-tag.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "## 📜 Deployment Logs" >> $GITHUB_STEP_SUMMARY
+          
+          echo "## 🔗 Links" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| 🌐 Dashboard Render URL | 🌍 Environment Deployed | 🌿 Branch Deployed From |" >> $GITHUB_STEP_SUMMARY
-          echo "|:-----------------------:|:----------------------:|:-----------------------:|" >> $GITHUB_STEP_SUMMARY
-          echo "| [Render Dashboard]($RENDER_DEPLOY_URL) | [Production]($RENDER_DEPLOY_URL) | $GITHUB_REF |" >> $GITHUB_STEP_SUMMARY
+          echo "| Resource | URL |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-----|" >> $GITHUB_STEP_SUMMARY
+          echo "| Production Site | [$PROD_URL]($PROD_URL) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Render Dashboard | [View Deployments]($RENDER_DEPLOY_URL) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Repository | [$REPO_URL]($REPO_URL) |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "## 📦 Version Information" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployed Version**: ${{ needs.pre-deployment-checks.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

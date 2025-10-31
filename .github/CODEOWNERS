@@ -1,0 +1,25 @@
+# Code Owners for Octa Music
+# These owners will be automatically requested for review when someone opens a pull request.
+
+# Default owners for everything in the repo
+*       @Pedro-Accarini
+
+# CI/CD workflows and actions
+/.github/workflows/  @Pedro-Accarini
+/.github/actions/    @Pedro-Accarini
+
+# Python source code
+/src/               @Pedro-Accarini
+
+# Tests
+/tests/             @Pedro-Accarini
+
+# Configuration files
+*.yml               @Pedro-Accarini
+*.yaml              @Pedro-Accarini
+requirements.txt    @Pedro-Accarini
+.gitignore          @Pedro-Accarini
+
+# Documentation
+*.md                @Pedro-Accarini
+/docs/              @Pedro-Accarini

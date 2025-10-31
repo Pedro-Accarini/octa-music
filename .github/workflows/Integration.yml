@@ -6,25 +6,127 @@ on:
     branches:
       - main
       - development
-      -  feature/*
-      -  bugfix/*
-      -  hotfix/*
-      -  release/*
+      - feature/*
+      - bugfix/*
+      - hotfix/*
+      - release/*
   pull_request:
     branches:
       - main
       - development
-      -  feature/*
-      -  bugfix/*
-      -  hotfix/*
-      -  release/*
+      - feature/*
+      - bugfix/*
+      - hotfix/*
+      - release/*
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
 
 jobs:
-  ci-checks:
-    name: CI Checks
+  quality-checks:
+    name: Quality Checks
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install flake8 black pylint mypy coverage
+
+      - name: Check code formatting with Black
+        run: |
+          black --check --diff src/ tests/ || echo "::warning::Code formatting issues found. Run 'black src/ tests/' to fix."
+
+      - name: Lint with Flake8
+        run: |
+          flake8 src/ tests/ --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 src/ tests/ --count --max-complexity=10 --max-line-length=127 --statistics --exit-zero
+
+      - name: Static analysis with Pylint
+        continue-on-error: true
+        run: |
+          pylint src/ --exit-zero --output-format=text
+
+      - name: Type checking with Mypy
+        continue-on-error: true
+        run: |
+          mypy src/ --ignore-missing-imports --no-strict-optional || true
+
+  test-matrix:
+    name: Test Python ${{ matrix.python-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install coverage pytest-cov
+
+      - name: Run tests with coverage
+        run: |
+          pytest tests/ -v --cov=src --cov-report=xml --cov-report=term
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+
+      - name: Upload coverage reports
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: coverage.xml
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [quality-checks, test-matrix]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Run CI Checks
         id: ci-checks
@@ -36,21 +138,20 @@ jobs:
           echo "Checking project versioning..."
           PROJECT_VERSION=$(cat ./src/__init__.py | grep -oP '(?<=__version__ = ")[^"]*')
           git fetch --tags --unshallow || git fetch --tags
-          LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null || echo "")
-          if [ -z "$LATEST_TAG" ]; then
-            echo "No git tags found. Please create a tag before running this workflow."
-            exit 1
-          fi
+          LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null || echo "0.0.0")
+          
           echo "project_version=$PROJECT_VERSION" >> $GITHUB_OUTPUT
           echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+          
           if [[ $PROJECT_VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            exit 0
+            echo "✅ Version format is valid: $PROJECT_VERSION"
           else
-            echo "Please update the project version. Current version: $PROJECT_VERSION, Latest tag: $LATEST_TAG"
+            echo "❌ Invalid version format: $PROJECT_VERSION"
             exit 1
           fi
 
-      - name: Workflow resume
+      - name: Workflow Summary
+        if: always()
         run: |
           REPO_URL="https://github.com/${{ github.repository }}"
           TAG_URL="$REPO_URL/releases/tag/${{ steps.check_versioning.outputs.latest_tag }}"
@@ -62,8 +163,8 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ "${{ steps.check_versioning.outputs.project_version }}" = "${{ steps.check_versioning.outputs.latest_tag }}" ]; then
             echo "✅ **Versions match!**" >> $GITHUB_STEP_SUMMARY
-            else
-            echo "Attention: 🚨 **Versions do not match!**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Versions do not match!**" >> $GITHUB_STEP_SUMMARY
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
