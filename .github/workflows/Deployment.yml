@@ -120,6 +120,18 @@ jobs:
         run: |
           echo "Waiting for deployment to complete by polling Render API..."
           
+          # Check if response.json exists
+          if [ ! -f response.json ]; then
+            echo "❌ Error: response.json not found from previous deployment step"
+            exit 1
+          fi
+          
+          # Install jq if not available
+          if ! command -v jq &> /dev/null; then
+            echo "Installing jq..."
+            sudo apt-get update -qq && sudo apt-get install -y -qq jq
+          fi
+          
           # Extract deployment ID from response.json
           DEPLOY_ID=$(jq -r '.id' response.json)
           if [ -z "$DEPLOY_ID" ] || [ "$DEPLOY_ID" = "null" ]; then
@@ -232,10 +244,6 @@ jobs:
         run: |
           echo "Checking project versioning..."
           PROJECT_VERSION="${{ needs.pre-deployment-checks.outputs.version }}"
-          if [ -z "$PROJECT_VERSION" ]; then
-            echo "Error: PROJECT_VERSION is empty. Aborting tag publish."
-            exit 1
-          fi
           if [ -z "$PROJECT_VERSION" ]; then
             echo "Error: PROJECT_VERSION is empty. Aborting tag publish."
             exit 1
