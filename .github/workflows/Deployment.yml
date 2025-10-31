@@ -44,7 +44,7 @@ jobs:
       - name: Get version
         id: version
         run: |
-          VERSION=$(cat ./src/__init__.py | grep -oP '(?<=__version__ = ")[^"]*')
+          VERSION=$(grep -oP '(?<=__version__ = ")[^"]*' ./src/__init__.py)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Deploying version: $VERSION"
 
@@ -71,7 +71,7 @@ jobs:
               repo: context.repo.repo,
               ref: context.sha,
               environment: 'production',
-              required_contexts: [],
+              required_contexts: ['Pre-Deployment Checks'],
               auto_merge: false,
               description: 'Deploying to Render'
             });
@@ -118,12 +118,46 @@ jobs:
       - name: Wait for deployment
         id: wait_deploy
         run: |
-          echo "Waiting for deployment to complete..."
-          sleep 30
+          echo "Waiting for deployment to complete by polling Render API..."
           
-          # Note: For more robust deployment tracking, consider polling the Render API
-          # for deployment status. Current implementation uses a fixed wait time.
-          echo "deployment_status=success" >> $GITHUB_OUTPUT
+          # Extract deployment ID from response.json
+          DEPLOY_ID=$(jq -r '.id' response.json)
+          if [ -z "$DEPLOY_ID" ] || [ "$DEPLOY_ID" = "null" ]; then
+            echo "❌ Could not extract deployment ID from response.json"
+            exit 1
+          fi
+          
+          MAX_ATTEMPTS=18  # ~3 minutes
+          ATTEMPT=0
+          SLEEP_INTERVAL=10
+          DEPLOY_STATUS=""
+          
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+            STATUS_RESPONSE=$(curl -s -X GET "https://api.render.com/v1/deploys/$DEPLOY_ID" \
+              -H "Accept: application/json" \
+              -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+              -H "Content-Type: application/json")
+            
+            DEPLOY_STATUS=$(echo "$STATUS_RESPONSE" | jq -r '.status')
+            echo "Attempt $((ATTEMPT+1))/$MAX_ATTEMPTS: Deployment status is '$DEPLOY_STATUS'"
+            
+            if [ "$DEPLOY_STATUS" = "live" ] || [ "$DEPLOY_STATUS" = "succeeded" ]; then
+              echo "✅ Deployment completed successfully!"
+              echo "deployment_status=success" >> $GITHUB_OUTPUT
+              exit 0
+            elif [ "$DEPLOY_STATUS" = "failed" ]; then
+              echo "❌ Deployment failed!"
+              echo "deployment_status=failed" >> $GITHUB_OUTPUT
+              exit 1
+            fi
+            
+            ATTEMPT=$((ATTEMPT + 1))
+            sleep $SLEEP_INTERVAL
+          done
+          
+          echo "⚠️ Deployment did not complete after $((MAX_ATTEMPTS * SLEEP_INTERVAL)) seconds"
+          echo "deployment_status=timeout" >> $GITHUB_OUTPUT
+          exit 1
 
       - name: Health check
         id: health_check
@@ -198,6 +232,10 @@ jobs:
         run: |
           echo "Checking project versioning..."
           PROJECT_VERSION="${{ needs.pre-deployment-checks.outputs.version }}"
+          if [ -z "$PROJECT_VERSION" ]; then
+            echo "Error: PROJECT_VERSION is empty. Aborting tag publish."
+            exit 1
+          fi
           git fetch --tags --unshallow || git fetch --tags
           LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null || echo "")
 

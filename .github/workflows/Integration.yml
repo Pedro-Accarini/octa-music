@@ -136,7 +136,7 @@ jobs:
         id: check_versioning
         run: |
           echo "Checking project versioning..."
-          PROJECT_VERSION=$(cat ./src/__init__.py | grep -oP '(?<=__version__ = ")[^"]*')
+          PROJECT_VERSION=$(grep -oP '(?<=__version__ = ")[^"]*' ./src/__init__.py)
           git fetch --tags --unshallow || git fetch --tags
           LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null || echo "0.0.0")
           

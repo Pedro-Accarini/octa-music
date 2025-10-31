@@ -7,6 +7,14 @@ set -e
 echo "🚀 Running local CI checks..."
 echo ""
 
+# Check if running in a virtual environment
+if [ -z "$VIRTUAL_ENV" ]; then
+    echo "⚠️  Warning: Not running in a virtual environment."
+    echo "It's recommended to activate a virtual environment before running this script."
+    echo "Press Ctrl+C to cancel or wait 3 seconds to continue..."
+    sleep 3
+fi
+
 echo "📦 Installing dependencies..."
 pip install -q -r requirements.txt
 pip install -q flake8 black pylint mypy pytest-cov
