@@ -127,7 +127,7 @@ jobs:
             exit 1
           fi
           
-          MAX_ATTEMPTS=18  # ~3 minutes
+          MAX_ATTEMPTS=18  # Up to 3 minutes of polling (18 attempts × 10 seconds), not including API call time
           ATTEMPT=0
           SLEEP_INTERVAL=10
           DEPLOY_STATUS=""
