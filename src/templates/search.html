@@ -533,16 +533,61 @@ function displayTracks(tracks) {
   }
   
   section.style.display = 'block';
-  list.innerHTML = tracks.map(track => `
-    <div class="result-card" onclick="window.open('${track.spotify_url}', '_blank')">
-      ${track.image_url ? `<img src="${track.image_url}" alt="${track.name}" class="result-image">` : '<div class="result-image"></div>'}
-      <div class="result-name">${track.name}</div>
-      <div class="result-info">By ${track.artists}</div>
-      <div class="result-info">Album: ${track.album}</div>
-      <div class="result-info">Popularity: ${track.popularity}/100</div>
-      <a href="${track.spotify_url}" target="_blank" class="result-link" onclick="event.stopPropagation()">Open in Spotify</a>
-    </div>
-  `).join('');
+  list.innerHTML = '';
+  
+  tracks.forEach(track => {
+    const card = document.createElement('div');
+    card.className = 'result-card';
+    card.onclick = function() { window.open(track.spotify_url, '_blank'); };
+    
+    // Add image
+    if (track.image_url) {
+      const img = document.createElement('img');
+      img.src = track.image_url;
+      img.alt = track.name;
+      img.className = 'result-image';
+      card.appendChild(img);
+    } else {
+      const placeholder = document.createElement('div');
+      placeholder.className = 'result-image';
+      card.appendChild(placeholder);
+    }
+    
+    // Add name
+    const name = document.createElement('div');
+    name.className = 'result-name';
+    name.textContent = track.name;
+    card.appendChild(name);
+    
+    // Add artists
+    const artists = document.createElement('div');
+    artists.className = 'result-info';
+    artists.textContent = `By ${track.artists}`;
+    card.appendChild(artists);
+    
+    // Add album
+    const album = document.createElement('div');
+    album.className = 'result-info';
+    album.textContent = `Album: ${track.album}`;
+    card.appendChild(album);
+    
+    // Add popularity
+    const popularity = document.createElement('div');
+    popularity.className = 'result-info';
+    popularity.textContent = `Popularity: ${track.popularity}/100`;
+    card.appendChild(popularity);
+    
+    // Add link
+    const link = document.createElement('a');
+    link.href = track.spotify_url;
+    link.target = '_blank';
+    link.className = 'result-link';
+    link.textContent = 'Open in Spotify';
+    link.onclick = function(e) { e.stopPropagation(); };
+    card.appendChild(link);
+    
+    list.appendChild(card);
+  });
 }
 
 // Display artists
@@ -556,16 +601,61 @@ function displayArtists(artists) {
   }
   
   section.style.display = 'block';
-  list.innerHTML = artists.map(artist => `
-    <div class="result-card" onclick="window.open('${artist.spotify_url}', '_blank')">
-      ${artist.image_url ? `<img src="${artist.image_url}" alt="${artist.name}" class="result-image">` : '<div class="result-image"></div>'}
-      <div class="result-name">${artist.name}</div>
-      <div class="result-info">Followers: ${artist.followers.toLocaleString()}</div>
-      <div class="result-info">Popularity: ${artist.popularity}/100</div>
-      <div class="result-info">Genres: ${artist.genres}</div>
-      <a href="${artist.spotify_url}" target="_blank" class="result-link" onclick="event.stopPropagation()">Open in Spotify</a>
-    </div>
-  `).join('');
+  list.innerHTML = '';
+  
+  artists.forEach(artist => {
+    const card = document.createElement('div');
+    card.className = 'result-card';
+    card.onclick = function() { window.open(artist.spotify_url, '_blank'); };
+    
+    // Add image
+    if (artist.image_url) {
+      const img = document.createElement('img');
+      img.src = artist.image_url;
+      img.alt = artist.name;
+      img.className = 'result-image';
+      card.appendChild(img);
+    } else {
+      const placeholder = document.createElement('div');
+      placeholder.className = 'result-image';
+      card.appendChild(placeholder);
+    }
+    
+    // Add name
+    const name = document.createElement('div');
+    name.className = 'result-name';
+    name.textContent = artist.name;
+    card.appendChild(name);
+    
+    // Add followers
+    const followers = document.createElement('div');
+    followers.className = 'result-info';
+    followers.textContent = `Followers: ${artist.followers.toLocaleString()}`;
+    card.appendChild(followers);
+    
+    // Add popularity
+    const popularity = document.createElement('div');
+    popularity.className = 'result-info';
+    popularity.textContent = `Popularity: ${artist.popularity}/100`;
+    card.appendChild(popularity);
+    
+    // Add genres
+    const genres = document.createElement('div');
+    genres.className = 'result-info';
+    genres.textContent = `Genres: ${artist.genres}`;
+    card.appendChild(genres);
+    
+    // Add link
+    const link = document.createElement('a');
+    link.href = artist.spotify_url;
+    link.target = '_blank';
+    link.className = 'result-link';
+    link.textContent = 'Open in Spotify';
+    link.onclick = function(e) { e.stopPropagation(); };
+    card.appendChild(link);
+    
+    list.appendChild(card);
+  });
 }
 
 // Display albums
@@ -579,16 +669,61 @@ function displayAlbums(albums) {
   }
   
   section.style.display = 'block';
-  list.innerHTML = albums.map(album => `
-    <div class="result-card" onclick="window.open('${album.spotify_url}', '_blank')">
-      ${album.image_url ? `<img src="${album.image_url}" alt="${album.name}" class="result-image">` : '<div class="result-image"></div>'}
-      <div class="result-name">${album.name}</div>
-      <div class="result-info">By ${album.artists}</div>
-      <div class="result-info">Released: ${album.release_date}</div>
-      <div class="result-info">Tracks: ${album.total_tracks}</div>
-      <a href="${album.spotify_url}" target="_blank" class="result-link" onclick="event.stopPropagation()">Open in Spotify</a>
-    </div>
-  `).join('');
+  list.innerHTML = '';
+  
+  albums.forEach(album => {
+    const card = document.createElement('div');
+    card.className = 'result-card';
+    card.onclick = function() { window.open(album.spotify_url, '_blank'); };
+    
+    // Add image
+    if (album.image_url) {
+      const img = document.createElement('img');
+      img.src = album.image_url;
+      img.alt = album.name;
+      img.className = 'result-image';
+      card.appendChild(img);
+    } else {
+      const placeholder = document.createElement('div');
+      placeholder.className = 'result-image';
+      card.appendChild(placeholder);
+    }
+    
+    // Add name
+    const name = document.createElement('div');
+    name.className = 'result-name';
+    name.textContent = album.name;
+    card.appendChild(name);
+    
+    // Add artists
+    const artists = document.createElement('div');
+    artists.className = 'result-info';
+    artists.textContent = `By ${album.artists}`;
+    card.appendChild(artists);
+    
+    // Add release date
+    const releaseDate = document.createElement('div');
+    releaseDate.className = 'result-info';
+    releaseDate.textContent = `Released: ${album.release_date}`;
+    card.appendChild(releaseDate);
+    
+    // Add track count
+    const trackCount = document.createElement('div');
+    trackCount.className = 'result-info';
+    trackCount.textContent = `Tracks: ${album.total_tracks}`;
+    card.appendChild(trackCount);
+    
+    // Add link
+    const link = document.createElement('a');
+    link.href = album.spotify_url;
+    link.target = '_blank';
+    link.className = 'result-link';
+    link.textContent = 'Open in Spotify';
+    link.onclick = function(e) { e.stopPropagation(); };
+    card.appendChild(link);
+    
+    list.appendChild(card);
+  });
 }
 
 // Event listeners
