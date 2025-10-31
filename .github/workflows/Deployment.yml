@@ -121,8 +121,8 @@ jobs:
           echo "Waiting for deployment to complete..."
           sleep 30
           
-          # In production, you would poll the Render API for deployment status
-          # For now, we'll assume success after waiting
+          # Note: For more robust deployment tracking, consider polling the Render API
+          # for deployment status. Current implementation uses a fixed wait time.
           echo "deployment_status=success" >> $GITHUB_OUTPUT
 
       - name: Health check
