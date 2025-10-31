@@ -1,0 +1,604 @@
+{% extends 'main.html' %}
+{% block title %}Advanced Search - Octa Music{% endblock %}
+{% block content %}
+<div class="search-container">
+  <div class="search-header">
+    <h1>Advanced Search</h1>
+    <p class="search-subtitle">Search for songs, artists, and albums on Spotify</p>
+  </div>
+
+  <div class="search-box-advanced">
+    <div class="search-input-wrapper">
+      <input 
+        type="text" 
+        id="searchInput" 
+        placeholder="Search for music..." 
+        autocomplete="off"
+        aria-label="Advanced search input"
+      >
+      <div id="autocomplete" class="autocomplete-dropdown"></div>
+    </div>
+    
+    <div class="search-filters">
+      <div class="filter-group">
+        <label for="searchType">Type:</label>
+        <select id="searchType" aria-label="Search type filter">
+          <option value="track,artist,album">All</option>
+          <option value="track">Tracks</option>
+          <option value="artist">Artists</option>
+          <option value="album">Albums</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="sortBy">Sort by:</label>
+        <select id="sortBy" aria-label="Sort order">
+          <option value="relevance">Relevance</option>
+          <option value="popularity">Popularity</option>
+          <option value="name">Name (A-Z)</option>
+        </select>
+      </div>
+      
+      <button id="searchButton" class="search-btn">Search</button>
+    </div>
+  </div>
+
+  <div id="searchHistory" class="search-history" style="display: none;">
+    <div class="history-header">
+      <h3>Recent Searches</h3>
+      <button id="clearHistory" class="clear-history-btn">Clear</button>
+    </div>
+    <div id="historyList" class="history-list"></div>
+  </div>
+
+  <div id="searchResults" class="search-results">
+    <div id="loadingIndicator" class="loading" style="display: none;">
+      <div class="spinner"></div>
+      <p>Searching...</p>
+    </div>
+    
+    <div id="resultsContent" style="display: none;">
+      <div id="tracksSection" class="results-section">
+        <h2>Tracks</h2>
+        <div id="tracksList" class="results-list"></div>
+      </div>
+      
+      <div id="artistsSection" class="results-section">
+        <h2>Artists</h2>
+        <div id="artistsList" class="results-list"></div>
+      </div>
+      
+      <div id="albumsSection" class="results-section">
+        <h2>Albums</h2>
+        <div id="albumsList" class="results-list"></div>
+      </div>
+    </div>
+    
+    <div id="noResults" class="no-results" style="display: none;">
+      <p>No results found. Try a different search query.</p>
+    </div>
+  </div>
+</div>
+
+<style>
+.search-container {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 0 20px;
+}
+
+.search-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.search-header h1 {
+  font-size: 2.5em;
+  margin-bottom: 10px;
+  color: #1db954;
+}
+
+.search-subtitle {
+  color: #666;
+  font-size: 1.1em;
+}
+
+.search-box-advanced {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-bottom: 30px;
+}
+
+.search-input-wrapper {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+#searchInput {
+  width: 100%;
+  padding: 15px;
+  font-size: 16px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+}
+
+#searchInput:focus {
+  outline: none;
+  border-color: #1db954;
+}
+
+.autocomplete-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  display: none;
+}
+
+.autocomplete-item {
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.autocomplete-item:hover {
+  background-color: #f0f0f0;
+}
+
+.search-filters {
+  display: flex;
+  gap: 15px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  flex: 1;
+  min-width: 150px;
+}
+
+.filter-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #333;
+}
+
+.filter-group select {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+}
+
+.search-btn {
+  padding: 10px 30px;
+  background: #1db954;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.search-btn:hover {
+  background: #1ed760;
+}
+
+.search-history {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-bottom: 30px;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.history-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+.clear-history-btn {
+  padding: 5px 15px;
+  background: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.clear-history-btn:hover {
+  background: #da190b;
+}
+
+.history-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.history-item {
+  padding: 8px 15px;
+  background: #f0f0f0;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 14px;
+}
+
+.history-item:hover {
+  background: #e0e0e0;
+}
+
+.loading {
+  text-align: center;
+  padding: 50px;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #1db954;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.results-section {
+  margin-bottom: 40px;
+}
+
+.results-section h2 {
+  color: #1db954;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #1db954;
+}
+
+.results-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.result-card {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.result-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.result-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  background: #f0f0f0;
+}
+
+.result-name {
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 5px;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.result-info {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 3px;
+}
+
+.result-link {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 8px 15px;
+  background: #1db954;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.result-link:hover {
+  background: #1ed760;
+}
+
+.no-results {
+  text-align: center;
+  padding: 50px;
+  color: #666;
+  font-size: 18px;
+}
+
+@media (max-width: 768px) {
+  .search-header h1 {
+    font-size: 2em;
+  }
+  
+  .search-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-btn {
+    width: 100%;
+  }
+  
+  .results-list {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+</style>
+
+<script>
+let debounceTimer;
+const DEBOUNCE_DELAY = 300;
+
+// Debounced search function
+function debounceSearch(callback, delay) {
+  return function(...args) {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => callback.apply(this, args), delay);
+  };
+}
+
+// Load search history
+async function loadSearchHistory() {
+  try {
+    const response = await fetch('/api/search-history');
+    const history = await response.json();
+    
+    if (history.length > 0) {
+      const historySection = document.getElementById('searchHistory');
+      const historyList = document.getElementById('historyList');
+      
+      historyList.innerHTML = history.map(term => 
+        `<div class="history-item" onclick="searchFromHistory('${term.replace(/'/g, "\\'")}')">${term}</div>`
+      ).join('');
+      
+      historySection.style.display = 'block';
+    }
+  } catch (error) {
+    console.error('Error loading search history:', error);
+  }
+}
+
+// Search from history
+function searchFromHistory(query) {
+  document.getElementById('searchInput').value = query;
+  performSearch();
+}
+
+// Clear search history
+async function clearSearchHistory() {
+  try {
+    await fetch('/api/search-history', { method: 'DELETE' });
+    document.getElementById('searchHistory').style.display = 'none';
+  } catch (error) {
+    console.error('Error clearing search history:', error);
+  }
+}
+
+// Autocomplete functionality
+const debouncedAutocomplete = debounceSearch(async function(query) {
+  const autocompleteDiv = document.getElementById('autocomplete');
+  
+  if (query.length < 2) {
+    autocompleteDiv.style.display = 'none';
+    return;
+  }
+  
+  try {
+    const response = await fetch(`/api/autocomplete?q=${encodeURIComponent(query)}`);
+    const suggestions = await response.json();
+    
+    if (suggestions.length > 0) {
+      autocompleteDiv.innerHTML = suggestions.map(suggestion => 
+        `<div class="autocomplete-item" onclick="selectSuggestion('${suggestion.replace(/'/g, "\\'")}')">${suggestion}</div>`
+      ).join('');
+      autocompleteDiv.style.display = 'block';
+    } else {
+      autocompleteDiv.style.display = 'none';
+    }
+  } catch (error) {
+    console.error('Error fetching autocomplete:', error);
+    autocompleteDiv.style.display = 'none';
+  }
+}, DEBOUNCE_DELAY);
+
+// Select autocomplete suggestion
+function selectSuggestion(suggestion) {
+  document.getElementById('searchInput').value = suggestion;
+  document.getElementById('autocomplete').style.display = 'none';
+  performSearch();
+}
+
+// Perform search
+async function performSearch() {
+  const query = document.getElementById('searchInput').value.trim();
+  const searchType = document.getElementById('searchType').value;
+  const sortBy = document.getElementById('sortBy').value;
+  
+  if (!query) return;
+  
+  // Show loading
+  document.getElementById('loadingIndicator').style.display = 'block';
+  document.getElementById('resultsContent').style.display = 'none';
+  document.getElementById('noResults').style.display = 'none';
+  document.getElementById('autocomplete').style.display = 'none';
+  
+  try {
+    const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&type=${searchType}&sort=${sortBy}`);
+    const data = await response.json();
+    
+    // Hide loading
+    document.getElementById('loadingIndicator').style.display = 'none';
+    
+    // Check if we have any results
+    const hasResults = (data.tracks && data.tracks.length > 0) || 
+                      (data.artists && data.artists.length > 0) || 
+                      (data.albums && data.albums.length > 0);
+    
+    if (!hasResults) {
+      document.getElementById('noResults').style.display = 'block';
+      return;
+    }
+    
+    // Display results
+    document.getElementById('resultsContent').style.display = 'block';
+    
+    // Display tracks
+    displayTracks(data.tracks || []);
+    displayArtists(data.artists || []);
+    displayAlbums(data.albums || []);
+    
+    // Reload search history
+    loadSearchHistory();
+    
+  } catch (error) {
+    console.error('Search error:', error);
+    document.getElementById('loadingIndicator').style.display = 'none';
+    document.getElementById('noResults').style.display = 'block';
+  }
+}
+
+// Display tracks
+function displayTracks(tracks) {
+  const section = document.getElementById('tracksSection');
+  const list = document.getElementById('tracksList');
+  
+  if (tracks.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+  
+  section.style.display = 'block';
+  list.innerHTML = tracks.map(track => `
+    <div class="result-card" onclick="window.open('${track.spotify_url}', '_blank')">
+      ${track.image_url ? `<img src="${track.image_url}" alt="${track.name}" class="result-image">` : '<div class="result-image"></div>'}
+      <div class="result-name">${track.name}</div>
+      <div class="result-info">By ${track.artists}</div>
+      <div class="result-info">Album: ${track.album}</div>
+      <div class="result-info">Popularity: ${track.popularity}/100</div>
+      <a href="${track.spotify_url}" target="_blank" class="result-link" onclick="event.stopPropagation()">Open in Spotify</a>
+    </div>
+  `).join('');
+}
+
+// Display artists
+function displayArtists(artists) {
+  const section = document.getElementById('artistsSection');
+  const list = document.getElementById('artistsList');
+  
+  if (artists.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+  
+  section.style.display = 'block';
+  list.innerHTML = artists.map(artist => `
+    <div class="result-card" onclick="window.open('${artist.spotify_url}', '_blank')">
+      ${artist.image_url ? `<img src="${artist.image_url}" alt="${artist.name}" class="result-image">` : '<div class="result-image"></div>'}
+      <div class="result-name">${artist.name}</div>
+      <div class="result-info">Followers: ${artist.followers.toLocaleString()}</div>
+      <div class="result-info">Popularity: ${artist.popularity}/100</div>
+      <div class="result-info">Genres: ${artist.genres}</div>
+      <a href="${artist.spotify_url}" target="_blank" class="result-link" onclick="event.stopPropagation()">Open in Spotify</a>
+    </div>
+  `).join('');
+}
+
+// Display albums
+function displayAlbums(albums) {
+  const section = document.getElementById('albumsSection');
+  const list = document.getElementById('albumsList');
+  
+  if (albums.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+  
+  section.style.display = 'block';
+  list.innerHTML = albums.map(album => `
+    <div class="result-card" onclick="window.open('${album.spotify_url}', '_blank')">
+      ${album.image_url ? `<img src="${album.image_url}" alt="${album.name}" class="result-image">` : '<div class="result-image"></div>'}
+      <div class="result-name">${album.name}</div>
+      <div class="result-info">By ${album.artists}</div>
+      <div class="result-info">Released: ${album.release_date}</div>
+      <div class="result-info">Tracks: ${album.total_tracks}</div>
+      <a href="${album.spotify_url}" target="_blank" class="result-link" onclick="event.stopPropagation()">Open in Spotify</a>
+    </div>
+  `).join('');
+}
+
+// Event listeners
+document.getElementById('searchInput').addEventListener('input', function(e) {
+  debouncedAutocomplete(e.target.value);
+});
+
+document.getElementById('searchInput').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') {
+    performSearch();
+  }
+});
+
+document.getElementById('searchButton').addEventListener('click', performSearch);
+
+document.getElementById('clearHistory').addEventListener('click', clearSearchHistory);
+
+// Close autocomplete when clicking outside
+document.addEventListener('click', function(e) {
+  const autocomplete = document.getElementById('autocomplete');
+  const searchInput = document.getElementById('searchInput');
+  if (e.target !== autocomplete && e.target !== searchInput) {
+    autocomplete.style.display = 'none';
+  }
+});
+
+// Load search history on page load
+loadSearchHistory();
+</script>
+{% endblock %}

@@ -7,7 +7,7 @@ try:
 except ImportError:
     __version__ = "unknown"
 
-from flask import Flask, request, render_template, session, redirect, url_for, flash
+from flask import Flask, request, render_template, session, redirect, url_for, flash, jsonify
 from dotenv import load_dotenv
 from src.config import DevelopmentConfig, PreproductionConfig, ProductionConfig, Config
 from src.services.spotify_service import SpotifyService
@@ -83,6 +83,76 @@ def login():
     if request.method == "POST":
         return redirect(url_for('home'))
     return render_template("login.html")
+
+@app.route("/search", methods=["GET"])
+def search_page():
+    """Advanced search page"""
+    return render_template("search.html")
+
+@app.route("/api/search", methods=["GET"])
+def api_search():
+    """API endpoint for advanced search"""
+    query = request.args.get('q', '')
+    search_type = request.args.get('type', 'track,artist,album')
+    limit = min(int(request.args.get('limit', 10)), 50)
+    offset = int(request.args.get('offset', 0))
+    sort_by = request.args.get('sort', 'relevance')
+    
+    if not query:
+        return jsonify({'error': 'Query parameter is required'}), 400
+    
+    try:
+        results = spotify_service.advanced_search(query, search_type, limit, offset)
+        
+        # Apply sorting if requested
+        if sort_by == 'popularity':
+            for key in ['tracks', 'artists', 'albums']:
+                if key in results:
+                    results[key] = sorted(results[key], key=lambda x: x.get('popularity', 0), reverse=True)
+        elif sort_by == 'name':
+            for key in ['tracks', 'artists', 'albums']:
+                if key in results:
+                    results[key] = sorted(results[key], key=lambda x: x.get('name', '').lower())
+        
+        # Store search in history (session-based)
+        if 'search_history' not in session:
+            session['search_history'] = []
+        
+        # Add to history if not duplicate of last search
+        if not session['search_history'] or session['search_history'][0] != query:
+            session['search_history'].insert(0, query)
+            session['search_history'] = session['search_history'][:10]  # Keep last 10 searches
+        
+        session.modified = True
+        
+        return jsonify(results)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route("/api/autocomplete", methods=["GET"])
+def api_autocomplete():
+    """API endpoint for autocomplete suggestions"""
+    query = request.args.get('q', '')
+    limit = min(int(request.args.get('limit', 5)), 10)
+    
+    if len(query) < 2:
+        return jsonify([])
+    
+    try:
+        suggestions = spotify_service.get_autocomplete_suggestions(query, limit)
+        return jsonify(suggestions)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route("/api/search-history", methods=["GET", "DELETE"])
+def api_search_history():
+    """API endpoint for search history"""
+    if request.method == "DELETE":
+        session['search_history'] = []
+        session.modified = True
+        return jsonify({'success': True})
+    
+    return jsonify(session.get('search_history', []))
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

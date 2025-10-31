@@ -29,6 +29,7 @@
     </div>
     <nav class="user-menu" role="navigation">
       <a href="/">Home</a>
+      <a href="/search">Advanced Search</a>
       <a href="{% if session.get('logged_in') %}#account{% else %}/login{% endif %}">Account</a>
       <a href="{% if session.get('logged_in') %}#config{% else %}/login{% endif %}">Configuration</a>
     </nav>

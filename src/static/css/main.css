@@ -1,5 +1,30 @@
 html, body { min-height: 100vh; margin: 0; padding: 0; }
 body { margin: 0; padding: 0; display: block; }
+.advanced-search-link-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+}
+.advanced-search-link {
+  padding: 0.6rem 1.8rem;
+  background: linear-gradient(135deg, #1db954 0%, #1ed760 100%);
+  color: #fff;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 4px 12px rgba(30,185,84,0.3);
+  transition: all 0.3s;
+  border: none;
+  cursor: pointer;
+}
+.advanced-search-link:hover {
+  background: linear-gradient(135deg, #159c41 0%, #1db954 100%);
+  box-shadow: 0 6px 16px rgba(30,185,84,0.4);
+  transform: translateY(-2px);
+}
 .main-flex {
   display: flex;
   flex-direction: column;
