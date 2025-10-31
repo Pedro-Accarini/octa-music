@@ -7,7 +7,7 @@ try:
 except ImportError:
     __version__ = "unknown"
 
-from flask import Flask, request, render_template, session, redirect, url_for, flash, jsonify
+from flask import Flask, request, render_template, session, redirect, url_for, flash
 from dotenv import load_dotenv
 from src.config import DevelopmentConfig, PreproductionConfig, ProductionConfig, Config
 from src.services.spotify_service import SpotifyService
@@ -185,13 +185,18 @@ def add_song_to_playlist(playlist_id):
     if existing:
         flash(f'"{track_name}" is already in this playlist!', "warning")
     else:
+        try:
+            duration = int(duration_ms) if duration_ms else None
+        except (ValueError, TypeError):
+            duration = None
+        
         song = PlaylistSong(
             playlist_id=playlist_id,
             spotify_track_id=track_id,
             track_name=track_name,
             artist_name=artist_name,
             album_name=album_name,
-            duration_ms=int(duration_ms) if duration_ms else None,
+            duration_ms=duration,
             image_url=image_url,
             spotify_url=spotify_url
         )
