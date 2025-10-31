@@ -112,9 +112,10 @@ class SpotifyService:
             
             # Add unique track names
             for track in results.get('tracks', {}).get('items', []):
-                track_name = f"{track['name']} - {track['artists'][0]['name']}"
-                if track_name not in suggestions and len(suggestions) < limit:
-                    suggestions.append(track_name)
+                if track.get('artists') and len(track['artists']) > 0:
+                    track_name = f"{track['name']} - {track['artists'][0]['name']}"
+                    if track_name not in suggestions and len(suggestions) < limit:
+                        suggestions.append(track_name)
             
             return suggestions[:limit]
         except Exception as e:

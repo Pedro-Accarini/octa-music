@@ -119,7 +119,7 @@ def api_search():
             session['search_history'] = []
         
         # Add to history if not duplicate of last search
-        if not session['search_history'] or session['search_history'][0] != query:
+        if len(session['search_history']) == 0 or session['search_history'][0] != query:
             session['search_history'].insert(0, query)
             session['search_history'] = session['search_history'][:10]  # Keep last 10 searches
         

@@ -395,9 +395,17 @@ async function loadSearchHistory() {
       const historySection = document.getElementById('searchHistory');
       const historyList = document.getElementById('historyList');
       
-      historyList.innerHTML = history.map(term => 
-        `<div class="history-item" onclick="searchFromHistory('${term.replace(/'/g, "\\'")}')">${term}</div>`
-      ).join('');
+      // Clear previous history items
+      historyList.innerHTML = '';
+      
+      // Create history items safely
+      history.forEach(term => {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        div.textContent = term;
+        div.onclick = function() { searchFromHistory(term); };
+        historyList.appendChild(div);
+      });
       
       historySection.style.display = 'block';
     }
@@ -436,9 +444,18 @@ const debouncedAutocomplete = debounceSearch(async function(query) {
     const suggestions = await response.json();
     
     if (suggestions.length > 0) {
-      autocompleteDiv.innerHTML = suggestions.map(suggestion => 
-        `<div class="autocomplete-item" onclick="selectSuggestion('${suggestion.replace(/'/g, "\\'")}')">${suggestion}</div>`
-      ).join('');
+      // Clear previous suggestions
+      autocompleteDiv.innerHTML = '';
+      
+      // Create suggestion elements safely
+      suggestions.forEach(suggestion => {
+        const div = document.createElement('div');
+        div.className = 'autocomplete-item';
+        div.textContent = suggestion;
+        div.onclick = function() { selectSuggestion(suggestion); };
+        autocompleteDiv.appendChild(div);
+      });
+      
       autocompleteDiv.style.display = 'block';
     } else {
       autocompleteDiv.style.display = 'none';
