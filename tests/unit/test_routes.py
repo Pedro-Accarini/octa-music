@@ -1,23 +1,8 @@
 import os
-import sys
 import pytest
 from unittest.mock import patch, MagicMock
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-
-os.environ['SPOTIPY_CLIENT_ID'] = 'test_client_id'
-os.environ['SPOTIPY_CLIENT_SECRET'] = 'test_client_secret'
-
 from src.main import app
-
-
-@pytest.fixture
-def client():
-    """Create a test client for the Flask application."""
-    app.config['TESTING'] = True
-    app.config['SECRET_KEY'] = 'test_secret_key'
-    with app.test_client() as client:
-        yield client
 
 
 @pytest.fixture

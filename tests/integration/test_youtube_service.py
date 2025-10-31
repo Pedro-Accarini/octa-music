@@ -1,10 +1,6 @@
-import os
-import sys
 import pytest
 import responses
 from unittest.mock import patch, MagicMock
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from src.services.youtube_service import (
     format_number,
