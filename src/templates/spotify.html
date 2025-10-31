@@ -9,7 +9,12 @@
       <button type="submit" name="action" value="spotify">Search</button>
     </form>
     {% if artist %}
-      <div class="artist-card">
+      <div class="artist-card" id="artist-card" 
+           data-spotify-id="{{ artist.spotify_url.split('/')[-1] if artist.spotify_url else '' }}"
+           data-name="{{ artist.name }}"
+           data-artist="{{ artist.name }}"
+           data-image="{{ artist.image_url }}"
+           data-url="{{ artist.spotify_url }}">
         {% if artist.image_url %}
           <img class="artist-img" src="{{ artist.image_url }}" alt="Image of {{ artist.name }}">
         {% endif %}
@@ -21,6 +26,45 @@
         {% endif %}
         {% if artist.spotify_url %}
           <a class="artist-link" href="{{ artist.spotify_url }}" target="_blank" rel="noopener noreferrer">View on Spotify</a>
+        {% endif %}
+        
+        <!-- Social Features -->
+        {% if session.get('logged_in') %}
+        <div class="social-features">
+          <button class="social-btn like-btn" onclick="toggleLike()" id="like-btn">
+            <span id="like-icon">❤️</span> <span id="like-text">Like</span>
+          </button>
+          <button class="social-btn share-btn" onclick="shareArtist()">
+            🔗 Share
+          </button>
+        </div>
+        
+        <div class="rating-section">
+          <div class="rating-label">Rate this artist:</div>
+          <div class="star-rating" id="star-rating">
+            <span class="star" data-rating="1" onclick="rateArtist(1)">☆</span>
+            <span class="star" data-rating="2" onclick="rateArtist(2)">☆</span>
+            <span class="star" data-rating="3" onclick="rateArtist(3)">☆</span>
+            <span class="star" data-rating="4" onclick="rateArtist(4)">☆</span>
+            <span class="star" data-rating="5" onclick="rateArtist(5)">☆</span>
+          </div>
+          <div class="rating-stats" id="rating-stats">
+            <span id="avg-rating">0.0</span> / 5.0
+          </div>
+        </div>
+        
+        <div class="comments-section">
+          <h3>Comments</h3>
+          <div class="comment-form">
+            <textarea id="comment-input" placeholder="Add a comment..." rows="3"></textarea>
+            <button onclick="addComment()" class="comment-submit-btn">Post Comment</button>
+          </div>
+          <div id="comments-list" class="comments-list"></div>
+        </div>
+        {% else %}
+        <div class="social-login-prompt">
+          <p>🎵 <a href="/login">Login</a> or <a href="/register">Register</a> to like, rate, and comment!</p>
+        </div>
         {% endif %}
       </div>
     {% endif %}
@@ -69,4 +113,386 @@
   </form>
 </div>
 {% endif %}
+
+<style>
+.social-features {
+  display: flex;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.social-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.like-btn {
+  background: #fff;
+  border: 2px solid #ff4458;
+  color: #ff4458;
+}
+
+.like-btn.liked {
+  background: #ff4458;
+  color: white;
+}
+
+.share-btn {
+  background: #fff;
+  border: 2px solid #1db954;
+  color: #1db954;
+}
+
+.share-btn:hover {
+  background: #1db954;
+  color: white;
+}
+
+.rating-section {
+  margin: 20px 0;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.rating-label {
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #191414;
+}
+
+.star-rating {
+  font-size: 32px;
+  margin: 10px 0;
+}
+
+.star {
+  cursor: pointer;
+  color: #ddd;
+  transition: color 0.2s;
+}
+
+.star:hover,
+.star.filled {
+  color: #ffd700;
+}
+
+.rating-stats {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #666;
+}
+
+#avg-rating {
+  font-weight: 700;
+  font-size: 18px;
+  color: #1db954;
+}
+
+.comments-section {
+  margin-top: 20px;
+}
+
+.comments-section h3 {
+  color: #191414;
+  margin-bottom: 15px;
+}
+
+.comment-form {
+  margin-bottom: 20px;
+}
+
+.comment-form textarea {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  resize: vertical;
+  outline: none;
+}
+
+.comment-form textarea:focus {
+  border-color: #1db954;
+}
+
+.comment-submit-btn {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background: #1db954;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.comment-submit-btn:hover {
+  background: #1ed760;
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.comment-item {
+  padding: 12px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  border-left: 4px solid #1db954;
+}
+
+.comment-author {
+  font-weight: 600;
+  color: #1db954;
+  margin-bottom: 5px;
+}
+
+.comment-text {
+  color: #333;
+  margin-bottom: 5px;
+  line-height: 1.4;
+}
+
+.comment-date {
+  font-size: 12px;
+  color: #999;
+}
+
+.social-login-prompt {
+  margin: 20px 0;
+  padding: 15px;
+  background: #f0f8ff;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.social-login-prompt p {
+  margin: 0;
+  color: #666;
+}
+
+.social-login-prompt a {
+  color: #1db954;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.social-login-prompt a:hover {
+  text-decoration: underline;
+}
+</style>
+
+<script>
+let currentSpotifyId = null;
+let userLiked = false;
+let userRating = 0;
+
+document.addEventListener('DOMContentLoaded', function() {
+  const artistCard = document.getElementById('artist-card');
+  if (artistCard) {
+    currentSpotifyId = artistCard.dataset.spotifyId;
+    if (currentSpotifyId) {
+      loadSongStatus();
+      loadComments();
+    }
+  }
+});
+
+function getArtistData() {
+  const artistCard = document.getElementById('artist-card');
+  return {
+    spotify_id: artistCard.dataset.spotifyId,
+    name: artistCard.dataset.name,
+    artist_name: artistCard.dataset.artist,
+    image_url: artistCard.dataset.image,
+    spotify_url: artistCard.dataset.url
+  };
+}
+
+async function loadSongStatus() {
+  try {
+    const response = await fetch(`/api/song/status/${currentSpotifyId}`);
+    const data = await response.json();
+    
+    // Update like button
+    userLiked = data.user_liked;
+    updateLikeButton();
+    
+    // Update rating
+    userRating = data.user_rating;
+    updateStarDisplay();
+    
+    // Update stats
+    document.getElementById('avg-rating').textContent = data.average_rating.toFixed(1);
+  } catch (error) {
+    console.error('Error loading song status:', error);
+  }
+}
+
+async function toggleLike() {
+  const artistData = getArtistData();
+  const endpoint = userLiked ? '/api/song/unlike' : '/api/song/like';
+  
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(artistData)
+    });
+    
+    const data = await response.json();
+    
+    if (data.success || response.ok) {
+      userLiked = !userLiked;
+      updateLikeButton();
+    } else if (data.error) {
+      alert(data.error);
+    }
+  } catch (error) {
+    console.error('Error toggling like:', error);
+  }
+}
+
+function updateLikeButton() {
+  const likeBtn = document.getElementById('like-btn');
+  const likeIcon = document.getElementById('like-icon');
+  const likeText = document.getElementById('like-text');
+  
+  if (userLiked) {
+    likeBtn.classList.add('liked');
+    likeIcon.textContent = '❤️';
+    likeText.textContent = 'Liked';
+  } else {
+    likeBtn.classList.remove('liked');
+    likeIcon.textContent = '🤍';
+    likeText.textContent = 'Like';
+  }
+}
+
+async function rateArtist(rating) {
+  const artistData = getArtistData();
+  artistData.rating = rating;
+  
+  try {
+    const response = await fetch('/api/song/rate', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(artistData)
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      userRating = rating;
+      updateStarDisplay();
+      document.getElementById('avg-rating').textContent = data.average_rating.toFixed(1);
+    }
+  } catch (error) {
+    console.error('Error rating artist:', error);
+  }
+}
+
+function updateStarDisplay() {
+  const stars = document.querySelectorAll('.star');
+  stars.forEach((star, index) => {
+    if (index < userRating) {
+      star.classList.add('filled');
+      star.textContent = '★';
+    } else {
+      star.classList.remove('filled');
+      star.textContent = '☆';
+    }
+  });
+}
+
+async function addComment() {
+  const commentInput = document.getElementById('comment-input');
+  const content = commentInput.value.trim();
+  
+  if (!content) {
+    alert('Please enter a comment');
+    return;
+  }
+  
+  const artistData = getArtistData();
+  artistData.content = content;
+  
+  try {
+    const response = await fetch('/api/song/comment', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(artistData)
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      commentInput.value = '';
+      loadComments();
+    }
+  } catch (error) {
+    console.error('Error adding comment:', error);
+  }
+}
+
+async function loadComments() {
+  try {
+    const response = await fetch(`/api/song/comments/${currentSpotifyId}`);
+    const data = await response.json();
+    
+    const commentsList = document.getElementById('comments-list');
+    
+    if (data.comments.length === 0) {
+      commentsList.innerHTML = '<p style="text-align:center;color:#999;font-style:italic;">No comments yet. Be the first to comment!</p>';
+    } else {
+      commentsList.innerHTML = data.comments.map(comment => `
+        <div class="comment-item">
+          <div class="comment-author">${comment.username}</div>
+          <div class="comment-text">${comment.content}</div>
+          <div class="comment-date">${comment.created_at}</div>
+        </div>
+      `).join('');
+    }
+  } catch (error) {
+    console.error('Error loading comments:', error);
+  }
+}
+
+async function shareArtist() {
+  const artistData = getArtistData();
+  
+  try {
+    const response = await fetch('/api/song/share', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(artistData)
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      // Copy to clipboard
+      navigator.clipboard.writeText(data.share_url).then(() => {
+        alert('Share link copied to clipboard!\n\n' + data.share_url);
+      }).catch(() => {
+        prompt('Copy this link to share:', data.share_url);
+      });
+    }
+  } catch (error) {
+    console.error('Error sharing artist:', error);
+  }
+}
+</script>
 {% endblock %}

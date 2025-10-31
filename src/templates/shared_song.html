@@ -1,0 +1,164 @@
+{% extends 'main.html' %}
+{% block title %}{{ song.name }} - Shared Song{% endblock %}
+{% block content %}
+<div class="shared-song-container">
+  <div class="shared-header">
+    <h2>🎵 {{ shared_by }} shared a song with you!</h2>
+  </div>
+  
+  <div class="song-card-large">
+    {% if song.image_url %}
+      <img src="{{ song.image_url }}" alt="{{ song.name }}" class="song-image-large">
+    {% endif %}
+    <div class="song-info-large">
+      <h1>{{ song.name }}</h1>
+      <h3>{{ song.artist_name }}</h3>
+      
+      <div class="song-stats">
+        <div class="stat-item">
+          <span class="stat-icon">❤️</span>
+          <span class="stat-value">{{ song.total_likes }} Likes</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-icon">⭐</span>
+          <span class="stat-value">{{ "%.1f"|format(song.average_rating) }} / 5.0</span>
+        </div>
+      </div>
+      
+      {% if song.spotify_url %}
+        <a href="{{ song.spotify_url }}" target="_blank" rel="noopener noreferrer" class="spotify-btn-large">
+          Listen on Spotify
+        </a>
+      {% endif %}
+    </div>
+  </div>
+  
+  <div class="cta-section">
+    <p>Want to create your own music collection?</p>
+    <a href="/register" class="cta-btn">Join Octa Music</a>
+  </div>
+</div>
+
+<style>
+.shared-song-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.shared-header {
+  text-align: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 10px;
+  margin-bottom: 30px;
+}
+
+.shared-header h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.song-card-large {
+  background: #fff;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  text-align: center;
+}
+
+.song-image-large {
+  width: 300px;
+  height: 300px;
+  border-radius: 10px;
+  object-fit: cover;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.song-info-large h1 {
+  margin: 0 0 10px 0;
+  color: #191414;
+  font-size: 32px;
+}
+
+.song-info-large h3 {
+  margin: 0 0 30px 0;
+  color: #666;
+  font-weight: 400;
+  font-size: 20px;
+}
+
+.song-stats {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 30px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+}
+
+.stat-icon {
+  font-size: 24px;
+}
+
+.stat-value {
+  font-weight: 600;
+  color: #191414;
+}
+
+.spotify-btn-large {
+  display: inline-block;
+  padding: 15px 40px;
+  background: #1db954;
+  color: white;
+  text-decoration: none;
+  border-radius: 30px;
+  font-size: 18px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.spotify-btn-large:hover {
+  background: #1ed760;
+  transform: scale(1.05);
+}
+
+.cta-section {
+  text-align: center;
+  padding: 30px;
+  margin-top: 30px;
+  background: #f9f9f9;
+  border-radius: 10px;
+}
+
+.cta-section p {
+  font-size: 18px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.cta-btn {
+  display: inline-block;
+  padding: 12px 30px;
+  background: #1db954;
+  color: white;
+  text-decoration: none;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.cta-btn:hover {
+  background: #1ed760;
+  transform: translateY(-2px);
+}
+</style>
+{% endblock %}

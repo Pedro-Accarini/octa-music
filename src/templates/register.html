@@ -1,0 +1,31 @@
+{% extends 'main.html' %}
+{% block title %}Register - Octa Music{% endblock %}
+{% block content %}
+<div class="login-container">
+  <div class="login-box">
+    <h1>Create Account</h1>
+    <form method="post" action="/register">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required autocomplete="username" aria-label="Username">
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required autocomplete="email" aria-label="Email">
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required autocomplete="new-password" aria-label="Password">
+      </div>
+      <div class="form-group">
+        <label for="confirm_password">Confirm Password</label>
+        <input type="password" id="confirm_password" name="confirm_password" required autocomplete="new-password" aria-label="Confirm password">
+      </div>
+      <button type="submit" class="login-submit-btn">Register</button>
+    </form>
+    <p class="login-footer">
+      Already have an account? <a href="/login">Login here</a>
+    </p>
+  </div>
+</div>
+{% endblock %}
