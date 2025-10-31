@@ -236,6 +236,10 @@ jobs:
             echo "Error: PROJECT_VERSION is empty. Aborting tag publish."
             exit 1
           fi
+          if [ -z "$PROJECT_VERSION" ]; then
+            echo "Error: PROJECT_VERSION is empty. Aborting tag publish."
+            exit 1
+          fi
           git fetch --tags --unshallow || git fetch --tags
           LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null || echo "")
 
