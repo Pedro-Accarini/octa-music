@@ -9,6 +9,9 @@ except ImportError:
     __version__ = "unknown"
 
 from flask import Flask, request, render_template, session, redirect, url_for
+from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from dotenv import load_dotenv
 from src.config import DevelopmentConfig, PreproductionConfig, ProductionConfig, Config
 from src.services.spotify_service import SpotifyService
@@ -26,6 +29,23 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "octa-music-secret")
+
+# Configure CORS
+CORS(app, resources={
+    r"/api/*": {
+        "origins": "*",
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type"]
+    }
+})
+
+# Configure rate limiting
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://"
+)
 
 app_env = os.getenv("APP_ENV", "development").lower()
 
@@ -50,6 +70,7 @@ except ValueError as e:
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY", "YOUR_API_KEY")
 
 @app.route("/", methods=["GET", "POST"])
+@limiter.limit("30 per minute")
 def home():
     error_message = None
     success_message = None
@@ -133,6 +154,11 @@ def internal_error(e):
     """Handle 500 errors."""
     logger.error(f"Internal error: {e}")
     return render_template("spotify.html", error_message="An internal error occurred"), 500
+
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    """Handle rate limit errors."""
+    return render_template("spotify.html", error_message="Rate limit exceeded. Please try again later."), 429
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

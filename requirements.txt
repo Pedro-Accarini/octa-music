@@ -3,3 +3,5 @@ spotipy
 python-dotenv
 pytest
 gunicorn
+flask-cors
+flask-limiter

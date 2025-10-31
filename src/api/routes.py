@@ -34,6 +34,16 @@ def health_check():
         'version': '1.0.0'
     })
 
+def rate_limit_decorator():
+    """Get rate limiter decorator if available."""
+    try:
+        from flask import current_app
+        if hasattr(current_app, 'limiter'):
+            return current_app.limiter.limit("20 per minute")
+        return lambda f: f
+    except:
+        return lambda f: f
+
 @api_bp.route('/spotify/search', methods=['POST'])
 def search_spotify_artist():
     """Search for a Spotify artist by name.
