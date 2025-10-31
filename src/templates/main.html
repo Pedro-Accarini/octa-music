@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/spotify.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/youtube.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/playlists.css') }}">
 </head>
 <body>
   <header class="user-header">
@@ -29,6 +30,7 @@
     </div>
     <nav class="user-menu" role="navigation">
       <a href="/">Home</a>
+      <a href="/playlists">My Playlists</a>
       <a href="{% if session.get('logged_in') %}#account{% else %}/login{% endif %}">Account</a>
       <a href="{% if session.get('logged_in') %}#config{% else %}/login{% endif %}">Configuration</a>
     </nav>
