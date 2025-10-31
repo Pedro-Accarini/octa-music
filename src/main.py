@@ -127,7 +127,8 @@ def api_search():
         
         return jsonify(results)
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        app.logger.error(f"Search API error: {e}")
+        return jsonify({'error': 'An error occurred while searching. Please try again.'}), 500
 
 @app.route("/api/autocomplete", methods=["GET"])
 def api_autocomplete():
@@ -142,7 +143,8 @@ def api_autocomplete():
         suggestions = spotify_service.get_autocomplete_suggestions(query, limit)
         return jsonify(suggestions)
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        app.logger.error(f"Autocomplete API error: {e}")
+        return jsonify({'error': 'An error occurred while fetching suggestions.'}), 500
 
 @app.route("/api/search-history", methods=["GET", "DELETE"])
 def api_search_history():
