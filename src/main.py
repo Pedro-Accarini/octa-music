@@ -170,7 +170,7 @@ def search_songs(playlist_id):
 @app.route("/playlists/<int:playlist_id>/add_song", methods=["POST"])
 def add_song_to_playlist(playlist_id):
     """Add a song to a playlist"""
-    playlist = Playlist.query.get_or_404(playlist_id)
+    Playlist.query.get_or_404(playlist_id)
     
     track_id = request.form.get("track_id")
     track_name = request.form.get("track_name")
