@@ -5,7 +5,7 @@
   <div class="container search-box">
     <h1>Spotify</h1>
     <form action="/" method="post">
-      <input name="artist_name" placeholder="Artist Name" autocomplete="off" required>
+      <input name="artist_name" placeholder="Artist Name" autocomplete="off" required aria-label="Artist name search">
       <button type="submit" name="action" value="spotify">Search</button>
     </form>
     {% if artist %}
@@ -15,12 +15,12 @@
         {% endif %}
         <div class="artist-name">{{ artist.name }}</div>
         <div class="artist-info"><strong>Followers:</strong> {{ artist.followers }}</div>
-        <div class="artist-info"><strong>Popularity:</strong> {{ artist.popularity }}</div>
+        <div class="artist-info"><strong>Popularity:</strong> {{ artist.popularity }}/100</div>
         {% if artist.genres %}
           <div class="artist-info"><strong>Genres:</strong> {{ artist.genres }}</div>
         {% endif %}
         {% if artist.spotify_url %}
-          <a class="artist-link" href="{{ artist.spotify_url }}" target="_blank">Spotify Profile</a>
+          <a class="artist-link" href="{{ artist.spotify_url }}" target="_blank" rel="noopener noreferrer">View on Spotify</a>
         {% endif %}
       </div>
     {% endif %}
@@ -28,7 +28,7 @@
   <div class="container search-box">
     <h1 class="youtube-title">YouTube</h1>
     <form method="post" action="/">
-      <input type="text" name="channel_name" placeholder="YouTube Channel Name" required>
+      <input type="text" name="channel_name" placeholder="YouTube Channel Name" required aria-label="YouTube channel name search">
       <button type="submit" name="action" value="youtube">Search</button>
     </form>
     {% if yt_stats %}
@@ -37,15 +37,36 @@
           <img class="artist-img" src="{{ yt_stats.image_url }}" alt="Image of channel {{ yt_stats.title }}">
         {% endif %}
         <div class="artist-name">{{ yt_stats.title }}</div>
-        <div class="artist-info">{{ yt_stats.description }}</div>
+        {% if yt_stats.description %}
+          <div class="artist-info artist-description">{{ yt_stats.description[:150] }}{% if yt_stats.description|length > 150 %}...{% endif %}</div>
+        {% endif %}
         <div class="artist-info"><strong>Subscribers:</strong> {{ yt_stats.subscribers }}</div>
-        <div class="artist-info"><strong>Views:</strong> {{ yt_stats.views }}</div>
-        <div class="artist-info"><strong>Video Count:</strong> {{ yt_stats.video_count }}</div>
+        <div class="artist-info"><strong>Total Views:</strong> {{ yt_stats.views }}</div>
+        <div class="artist-info"><strong>Videos:</strong> {{ yt_stats.video_count }}</div>
+        {% if yt_stats.top_video_title %}
+          <div class="top-video-section">
+            <div class="artist-info top-video-label"><strong>🔥 Most Viewed:</strong></div>
+            <div class="artist-info top-video-title">{{ yt_stats.top_video_title[:60] }}{% if yt_stats.top_video_title|length > 60 %}...{% endif %}</div>
+            {% if yt_stats.top_video_views %}
+              <div class="artist-info"><strong>Views:</strong> {{ yt_stats.top_video_views }}</div>
+            {% endif %}
+            {% if yt_stats.top_video_url %}
+              <a class="artist-link" href="{{ yt_stats.top_video_url }}" target="_blank" rel="noopener noreferrer">Watch Video</a>
+            {% endif %}
+          </div>
+        {% endif %}
         {% if yt_stats.channel_url %}
-          <a class="artist-link" href="{{ yt_stats.channel_url }}" target="_blank">YouTube Channel</a>
+          <a class="artist-link" href="{{ yt_stats.channel_url }}" target="_blank" rel="noopener noreferrer">View on YouTube</a>
         {% endif %}
       </div>
     {% endif %}
   </div>
 </div>
+{% if artist or yt_stats %}
+<div class="clear-btn-row">
+  <form method="post" action="/">
+    <button type="submit" name="action" value="clear" class="clear-btn">Clear Results</button>
+  </form>
+</div>
+{% endif %}
 {% endblock %}
