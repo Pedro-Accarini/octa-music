@@ -3,3 +3,6 @@ spotipy
 python-dotenv
 pytest
 gunicorn
+Flask-Limiter
+redis
+Flask-Caching

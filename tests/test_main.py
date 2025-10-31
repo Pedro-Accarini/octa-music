@@ -3,10 +3,12 @@ import sys
 import pytest
 from unittest.mock import patch, MagicMock
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
+# Set environment for testing BEFORE importing the app
+os.environ['APP_ENV'] = 'testing'
 os.environ['SPOTIPY_CLIENT_ID'] = 'dummy'
 os.environ['SPOTIPY_CLIENT_SECRET'] = 'dummy'
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 try:
     from src.main import app
