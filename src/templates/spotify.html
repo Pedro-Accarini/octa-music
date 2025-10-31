@@ -1,71 +1,130 @@
 {% extends 'main.html' %}
 {% block title %}Spotify & YouTube Artist Metrics{% endblock %}
 {% block content %}
-<div class="main-flex">
-  <div class="container search-box">
-    <h1>Spotify</h1>
-    <form action="/" method="post">
-      <input name="artist_name" placeholder="Artist Name" autocomplete="off" required aria-label="Artist name search">
-      <button type="submit" name="action" value="spotify">Search</button>
+<div class="main-flex px-4 sm:px-6 lg:px-8 dark:bg-gray-900">
+  <!-- Spotify Search Box -->
+  <div class="container search-box bg-white dark:bg-gray-800 shadow-lg transition-colors duration-200">
+    <h1 class="text-2xl sm:text-3xl font-bold mb-6 text-spotify dark:text-spotify text-center">Spotify</h1>
+    <form action="/" method="post" class="space-y-4">
+      <div class="flex flex-col sm:flex-row gap-2">
+        <input 
+          name="artist_name" 
+          placeholder="Artist Name" 
+          autocomplete="off" 
+          required 
+          aria-label="Artist name search"
+          class="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-spotify focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors duration-200 min-h-[44px]">
+        <button 
+          type="submit" 
+          name="action" 
+          value="spotify"
+          class="px-6 py-3 bg-spotify hover:bg-spotify-dark text-white font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-spotify focus:ring-offset-2 dark:focus:ring-offset-gray-800 shadow-sm hover:shadow-md min-h-[44px] min-w-[120px]">
+          Search
+        </button>
+      </div>
     </form>
     {% if artist %}
-      <div class="artist-card">
+      <div class="artist-card mt-6 bg-gray-50 dark:bg-gray-700 rounded-xl p-6 transition-colors duration-200">
         {% if artist.image_url %}
-          <img class="artist-img" src="{{ artist.image_url }}" alt="Image of {{ artist.name }}">
+          <img class="artist-img mx-auto" src="{{ artist.image_url }}" alt="Image of {{ artist.name }}">
         {% endif %}
-        <div class="artist-name">{{ artist.name }}</div>
-        <div class="artist-info"><strong>Followers:</strong> {{ artist.followers }}</div>
-        <div class="artist-info"><strong>Popularity:</strong> {{ artist.popularity }}/100</div>
+        <div class="artist-name text-xl sm:text-2xl font-bold text-gray-900 dark:text-white text-center mb-3">{{ artist.name }}</div>
+        <div class="artist-info text-gray-700 dark:text-gray-300"><strong>Followers:</strong> {{ artist.followers }}</div>
+        <div class="artist-info text-gray-700 dark:text-gray-300"><strong>Popularity:</strong> {{ artist.popularity }}/100</div>
         {% if artist.genres %}
-          <div class="artist-info"><strong>Genres:</strong> {{ artist.genres }}</div>
+          <div class="artist-info text-gray-700 dark:text-gray-300"><strong>Genres:</strong> {{ artist.genres }}</div>
         {% endif %}
         {% if artist.spotify_url %}
-          <a class="artist-link" href="{{ artist.spotify_url }}" target="_blank" rel="noopener noreferrer">View on Spotify</a>
+          <a 
+            class="artist-link inline-block mt-4 px-5 py-2 bg-spotify hover:bg-spotify-dark text-white font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-spotify focus:ring-offset-2 dark:focus:ring-offset-gray-700 min-h-[44px] flex items-center justify-center" 
+            href="{{ artist.spotify_url }}" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            aria-label="View {{ artist.name }} on Spotify (opens in new tab)">
+            View on Spotify
+          </a>
         {% endif %}
       </div>
     {% endif %}
   </div>
-  <div class="container search-box">
-    <h1 class="youtube-title">YouTube</h1>
-    <form method="post" action="/">
-      <input type="text" name="channel_name" placeholder="YouTube Channel Name" required aria-label="YouTube channel name search">
-      <button type="submit" name="action" value="youtube">Search</button>
+  
+  <!-- YouTube Search Box -->
+  <div class="container search-box bg-white dark:bg-gray-800 shadow-lg transition-colors duration-200">
+    <h1 class="youtube-title text-2xl sm:text-3xl font-bold mb-6 text-red-600 dark:text-red-500 text-center">YouTube</h1>
+    <form method="post" action="/" class="space-y-4">
+      <div class="flex flex-col sm:flex-row gap-2">
+        <input 
+          type="text" 
+          name="channel_name" 
+          placeholder="YouTube Channel Name" 
+          required 
+          aria-label="YouTube channel name search"
+          class="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors duration-200 min-h-[44px]">
+        <button 
+          type="submit" 
+          name="action" 
+          value="youtube"
+          class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 dark:focus:ring-offset-gray-800 shadow-sm hover:shadow-md min-h-[44px] min-w-[120px]">
+          Search
+        </button>
+      </div>
     </form>
     {% if yt_stats %}
-      <div class="artist-card">
+      <div class="artist-card mt-6 bg-gray-50 dark:bg-gray-700 rounded-xl p-6 transition-colors duration-200">
         {% if yt_stats.image_url %}
-          <img class="artist-img" src="{{ yt_stats.image_url }}" alt="Image of channel {{ yt_stats.title }}">
+          <img class="artist-img mx-auto" src="{{ yt_stats.image_url }}" alt="Image of channel {{ yt_stats.title }}">
         {% endif %}
-        <div class="artist-name">{{ yt_stats.title }}</div>
+        <div class="artist-name text-xl sm:text-2xl font-bold text-gray-900 dark:text-white text-center mb-3">{{ yt_stats.title }}</div>
         {% if yt_stats.description %}
-          <div class="artist-info artist-description">{{ yt_stats.description[:150] }}{% if yt_stats.description|length > 150 %}...{% endif %}</div>
+          <div class="artist-info artist-description text-gray-600 dark:text-gray-400 italic mb-3">{{ yt_stats.description[:150] }}{% if yt_stats.description|length > 150 %}...{% endif %}</div>
         {% endif %}
-        <div class="artist-info"><strong>Subscribers:</strong> {{ yt_stats.subscribers }}</div>
-        <div class="artist-info"><strong>Total Views:</strong> {{ yt_stats.views }}</div>
-        <div class="artist-info"><strong>Videos:</strong> {{ yt_stats.video_count }}</div>
+        <div class="artist-info text-gray-700 dark:text-gray-300"><strong>Subscribers:</strong> {{ yt_stats.subscribers }}</div>
+        <div class="artist-info text-gray-700 dark:text-gray-300"><strong>Total Views:</strong> {{ yt_stats.views }}</div>
+        <div class="artist-info text-gray-700 dark:text-gray-300"><strong>Videos:</strong> {{ yt_stats.video_count }}</div>
         {% if yt_stats.top_video_title %}
-          <div class="top-video-section">
-            <div class="artist-info top-video-label"><strong>🔥 Most Viewed:</strong></div>
-            <div class="artist-info top-video-title">{{ yt_stats.top_video_title[:60] }}{% if yt_stats.top_video_title|length > 60 %}...{% endif %}</div>
+          <div class="top-video-section mt-4 pt-4 border-t border-gray-300 dark:border-gray-600">
+            <div class="artist-info top-video-label text-red-600 dark:text-red-500 font-semibold"><strong>🔥 Most Viewed:</strong></div>
+            <div class="artist-info top-video-title text-gray-800 dark:text-gray-200">{{ yt_stats.top_video_title[:60] }}{% if yt_stats.top_video_title|length > 60 %}...{% endif %}</div>
             {% if yt_stats.top_video_views %}
-              <div class="artist-info"><strong>Views:</strong> {{ yt_stats.top_video_views }}</div>
+              <div class="artist-info text-gray-700 dark:text-gray-300"><strong>Views:</strong> {{ yt_stats.top_video_views }}</div>
             {% endif %}
             {% if yt_stats.top_video_url %}
-              <a class="artist-link" href="{{ yt_stats.top_video_url }}" target="_blank" rel="noopener noreferrer">Watch Video</a>
+              <a 
+                class="artist-link inline-block mt-2 px-5 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 dark:focus:ring-offset-gray-700 min-h-[44px] flex items-center justify-center" 
+                href="{{ yt_stats.top_video_url }}" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                aria-label="Watch most viewed video (opens in new tab)">
+                Watch Video
+              </a>
             {% endif %}
           </div>
         {% endif %}
         {% if yt_stats.channel_url %}
-          <a class="artist-link" href="{{ yt_stats.channel_url }}" target="_blank" rel="noopener noreferrer">View on YouTube</a>
+          <a 
+            class="artist-link inline-block mt-4 px-5 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 dark:focus:ring-offset-gray-700 min-h-[44px] flex items-center justify-center" 
+            href="{{ yt_stats.channel_url }}" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            aria-label="View {{ yt_stats.title }} on YouTube (opens in new tab)">
+            View on YouTube
+          </a>
         {% endif %}
       </div>
     {% endif %}
   </div>
 </div>
 {% if artist or yt_stats %}
-<div class="clear-btn-row">
+<div class="clear-btn-row px-4">
   <form method="post" action="/">
-    <button type="submit" name="action" value="clear" class="clear-btn">Clear Results</button>
+    <button 
+      type="submit" 
+      name="action" 
+      value="clear" 
+      class="clear-btn px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 shadow-sm hover:shadow-md min-h-[44px] min-w-[140px]"
+      aria-label="Clear all search results">
+      Clear Results
+    </button>
   </form>
 </div>
 {% endif %}

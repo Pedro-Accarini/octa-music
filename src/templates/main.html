@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,41 +11,87 @@
   <meta property="og:url" content="https://octa-music.onrender.com">
   <title>{% block title %}Spotify & YouTube Artist Metrics{% endblock %}</title>
   <link href="https://fonts.googleapis.com/css?family=Inter:400,600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            spotify: '#1db954',
+            'spotify-dark': '#159c41',
+          }
+        }
+      }
+    }
+  </script>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/spotify.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/youtube.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
-<body>
-  <header class="user-header">
-    <button class="menu-btn" onclick="document.querySelector('.user-menu').classList.toggle('open')" aria-label="Toggle menu">&#9776;</button>
+<body class="dark:bg-gray-900 transition-colors duration-200">
+  <header class="user-header bg-white dark:bg-gray-800 transition-colors duration-200">
+    <button 
+      class="menu-btn focus:outline-none focus:ring-2 focus:ring-spotify focus:ring-offset-2 dark:focus:ring-offset-gray-800" 
+      onclick="document.querySelector('.user-menu').classList.toggle('open')" 
+      aria-label="Toggle menu"
+      aria-expanded="false"
+      aria-controls="nav-menu">
+      &#9776;
+    </button>
     <div class="user-info">
       {% if session.get('logged_in') %}
         <img src="https://ui-avatars.com/api/?name=User&background=1db954&color=fff&rounded=true&size=40" alt="Profile" class="user-avatar">
-        <span class="user-name">User</span>
+        <span class="user-name dark:text-white">User</span>
       {% else %}
         <img src="https://ui-avatars.com/api/?name=OM&background=1db954&color=fff&rounded=true&size=40" alt="Octa Music" class="user-avatar">
-        <span class="user-name">Octa Music</span>
+        <span class="user-name dark:text-white">Octa Music</span>
       {% endif %}
     </div>
-    <nav class="user-menu" role="navigation">
-      <a href="/">Home</a>
-      <a href="{% if session.get('logged_in') %}#account{% else %}/login{% endif %}">Account</a>
-      <a href="{% if session.get('logged_in') %}#config{% else %}/login{% endif %}">Configuration</a>
+    <nav class="user-menu dark:bg-gray-800 dark:border-gray-700" role="navigation" id="nav-menu" aria-label="Main navigation">
+      <a href="/" class="focus:outline-none focus:ring-2 focus:ring-spotify dark:focus:ring-offset-gray-800">Home</a>
+      <a href="{% if session.get('logged_in') %}#account{% else %}/login{% endif %}" class="focus:outline-none focus:ring-2 focus:ring-spotify dark:focus:ring-offset-gray-800">Account</a>
+      <a href="{% if session.get('logged_in') %}#config{% else %}/login{% endif %}" class="focus:outline-none focus:ring-2 focus:ring-spotify dark:focus:ring-offset-gray-800">Configuration</a>
     </nav>
+    <button 
+      id="darkModeToggle" 
+      class="ml-auto p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-spotify focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center" 
+      aria-label="Toggle dark mode"
+      title="Toggle dark mode">
+      <svg class="w-6 h-6 hidden dark:block text-yellow-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+        <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path>
+      </svg>
+      <svg class="w-6 h-6 block dark:hidden text-gray-700" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+      </svg>
+    </button>
   </header>
   {% if request.endpoint == 'home' %}
-  <div class="login-btn-row">
-    <a href="/login" class="login-btn">Login</a>
+  <div class="login-btn-row w-full flex justify-center items-center my-10 px-4">
+    <a 
+      href="/login" 
+      class="login-btn px-6 py-3 bg-spotify hover:bg-spotify-dark text-white font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-spotify focus:ring-offset-2 dark:focus:ring-offset-gray-900 shadow-sm hover:shadow-md min-h-[44px] min-w-[120px] inline-flex items-center justify-center"
+      aria-label="Login to your account">
+      Login
+    </a>
   </div>
   {% endif %}
   
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-      <div class="flash-messages">
+      <div class="flash-messages fixed top-5 right-5 left-5 sm:left-auto z-50 max-w-md space-y-2">
         {% for category, message in messages %}
-          <div class="flash-message flash-{{ category }}" role="alert">
-            {{ message }}
-            <button class="flash-close" onclick="this.parentElement.remove()" aria-label="Close message">&times;</button>
+          <div class="flash-message flash-{{ category }} bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 pr-12 relative animate-slide-in transition-colors duration-200 border-l-4 {% if category == 'success' %}border-green-500 dark:border-green-400{% elif category == 'error' %}border-red-500 dark:border-red-400{% else %}border-blue-500 dark:border-blue-400{% endif %}" role="alert" aria-live="polite">
+            <div class="{% if category == 'success' %}text-green-800 dark:text-green-200{% elif category == 'error' %}text-red-800 dark:text-red-200{% else %}text-blue-800 dark:text-blue-200{% endif %}">
+              {{ message }}
+            </div>
+            <button 
+              class="flash-close absolute top-3 right-3 text-2xl leading-none opacity-70 hover:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 {% if category == 'success' %}text-green-800 dark:text-green-200 focus:ring-green-500{% elif category == 'error' %}text-red-800 dark:text-red-200 focus:ring-red-500{% else %}text-blue-800 dark:text-blue-200 focus:ring-blue-500{% endif %} rounded min-h-[44px] min-w-[44px] flex items-center justify-center" 
+              onclick="this.parentElement.remove()" 
+              aria-label="Close message"
+              tabindex="0">
+              &times;
+            </button>
           </div>
         {% endfor %}
       </div>
@@ -54,11 +100,55 @@
   
   {% block content %}{% endblock %}
   <script>
+    // Dark mode toggle functionality
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const html = document.documentElement;
+    
+    // Check for saved dark mode preference or default to light mode
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      html.classList.add('dark');
+    }
+    
+    darkModeToggle.addEventListener('click', () => {
+      html.classList.toggle('dark');
+      const isDark = html.classList.contains('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
+    
+    // Keyboard navigation for dark mode toggle
+    darkModeToggle.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        darkModeToggle.click();
+      }
+    });
+    
+    // Menu toggle with keyboard and accessibility
+    const menuBtn = document.querySelector('.menu-btn');
+    const menu = document.querySelector('.user-menu');
+    
+    menuBtn.addEventListener('click', () => {
+      const isOpen = menu.classList.contains('open');
+      menu.classList.toggle('open');
+      menuBtn.setAttribute('aria-expanded', !isOpen);
+    });
+    
+    // Close menu when clicking outside
     document.addEventListener('click', function(e) {
-      const menu = document.querySelector('.user-menu');
       const btn = document.querySelector('.menu-btn');
       if(menu && btn && !btn.contains(e.target) && !menu.contains(e.target)) {
         menu.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+    });
+    
+    // Close menu with Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && menu.classList.contains('open')) {
+        menu.classList.remove('open');
+        menuBtn.setAttribute('aria-expanded', 'false');
+        menuBtn.focus();
       }
     });
     
