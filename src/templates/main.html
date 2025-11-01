@@ -20,20 +20,8 @@
 <body>
   <header class="user-header">
     <button class="menu-btn" onclick="document.querySelector('.user-menu').classList.toggle('open')" aria-label="Toggle menu">&#9776;</button>
-    <div class="user-info">
-      {% if session.get('logged_in') %}
-        <img src="https://ui-avatars.com/api/?name=User&background=1db954&color=fff&rounded=true&size=40" alt="Profile" class="user-avatar">
-        <span class="user-name">User</span>
-      {% else %}
-        <img src="https://ui-avatars.com/api/?name=OM&background=1db954&color=fff&rounded=true&size=40" alt="Octa Music" class="user-avatar">
-        <span class="user-name">Octa Music</span>
-      {% endif %}
-    </div>
     <nav class="user-menu" role="navigation">
       <a href="/">Home</a>
-      <a href="/playlists">My Playlists</a>
-      <a href="{% if session.get('logged_in') %}#account{% else %}/login{% endif %}">Account</a>
-      <a href="{% if session.get('logged_in') %}#config{% else %}/login{% endif %}">Configuration</a>
     </nav>
     <button class="theme-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
       <span class="theme-icon">🌙</span>
