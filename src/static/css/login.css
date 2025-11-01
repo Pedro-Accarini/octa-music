@@ -1,0 +1,155 @@
+/**
+ * Login Page Styles
+ * Uses design tokens from design-tokens.css
+ */
+
+.login-page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 70vh;
+  width: 100%;
+  padding: var(--spacing-4);
+}
+
+.login-form {
+  background: var(--surface-base);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: var(--spacing-10) var(--spacing-8);
+  max-width: 400px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--spacing-4);
+}
+
+.login-form h2 {
+  margin-bottom: var(--spacing-1);
+  color: var(--color-primary-500);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-3xl);
+  text-align: center;
+}
+
+.login-desc {
+  color: var(--text-secondary);
+  font-size: var(--font-size-base);
+  text-align: center;
+  margin-bottom: var(--spacing-6);
+  line-height: var(--line-height-normal);
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-4);
+}
+
+.input-group label {
+  font-size: var(--font-size-base);
+  color: var(--color-primary-500);
+  font-weight: var(--font-weight-semibold);
+}
+
+.input-group input {
+  min-height: var(--input-height-base);
+  padding: 0 var(--input-padding-x);
+  border: var(--input-border-width) solid var(--border-primary);
+  border-radius: var(--radius-base);
+  font-size: var(--font-size-base);
+  font-family: var(--font-primary);
+  background: var(--surface-base);
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+}
+
+.input-group input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.input-group input:hover {
+  border-color: var(--border-focus);
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+}
+
+.login-form .login-btn {
+  width: 100%;
+  margin-top: var(--spacing-5);
+}
+
+.login-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--spacing-5);
+  gap: var(--spacing-4);
+  flex-wrap: wrap;
+}
+
+.back-home-btn,
+.forgot-link {
+  color: var(--color-primary-500);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  transition: color var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-2);
+  border-radius: var(--radius-sm);
+}
+
+.back-home-btn:hover,
+.forgot-link:hover {
+  color: var(--color-primary-700);
+  text-decoration: underline;
+}
+
+.back-home-btn:focus-visible,
+.forgot-link:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Responsive design */
+@media (max-width: 479px) {
+  .login-page-container {
+    min-height: 60vh;
+    padding: var(--spacing-2);
+  }
+  
+  .login-form {
+    padding: var(--spacing-8) var(--spacing-6);
+    max-width: 100%;
+  }
+  
+  .login-form h2 {
+    font-size: var(--font-size-2xl);
+  }
+  
+  .login-footer {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+  
+  .back-home-btn,
+  .forgot-link {
+    justify-content: center;
+  }
+}
+
+@media (min-width: 480px) and (max-width: 767px) {
+  .login-form {
+    max-width: 420px;
+  }
+}

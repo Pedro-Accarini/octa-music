@@ -1,74 +1,101 @@
+/**
+ * YouTube Component Styles
+ * Uses design tokens from design-tokens.css
+ * Inherits most styles from spotify.css and base.css
+ */
+
 .youtube-container {
-  /* Herda o visual da .container do Spotify */
+  /* Inherits from .container in spotify.css */
   text-align: center;
 }
+
 .youtube-title {
-  font-size: 1.6rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  color: #1db954;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-6);
+  color: var(--color-primary-500);
 }
+
 .youtube-container form {
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-6);
   justify-content: center;
 }
+
 input[name="channel_name"] {
   flex: 1;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #e1e4e8;
-  border-radius: 8px;
-  font-size: 1rem;
+  min-height: var(--input-height-base);
+  padding: 0 var(--input-padding-x);
+  border: var(--input-border-width) solid var(--border-primary);
+  border-radius: var(--radius-base);
+  font-size: var(--font-size-base);
+  font-family: var(--font-primary);
+  background: var(--surface-base);
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
 }
+
+input[name="channel_name"]:hover {
+  border-color: var(--border-focus);
+}
+
+input[name="channel_name"]:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+}
+
 .youtube-container button[type="submit"] {
-  background: #1db954;
-  color: #fff;
+  min-height: var(--button-height-base);
+  background: var(--color-primary-500);
+  color: var(--text-inverse);
   border: none;
-  border-radius: 8px;
-  padding: 0.5rem 1.2rem;
-  font-size: 1rem;
-  font-weight: 600;
+  border-radius: var(--radius-base);
+  padding: 0 var(--button-padding-x-base);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all var(--transition-fast);
 }
+
 .youtube-container button[type="submit"]:hover {
-  background: #169c43;
+  background: var(--color-primary-700);
+  transform: scale(1.02);
+  box-shadow: var(--shadow-primary);
 }
+
+.youtube-container button[type="submit"]:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
 .youtube-stats {
-  margin-top: 1.5rem;
-  padding: 1.5rem 1rem;
-  border-radius: 12px;
-  background: #f1f3f4;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  margin-top: var(--spacing-6);
+  padding: var(--spacing-6) var(--spacing-4);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-sm);
   text-align: center;
+  transition: all var(--transition-base);
 }
+
+.youtube-stats:hover {
+  box-shadow: var(--shadow-md);
+}
+
 .yt-img {
   width: 120px;
   height: 120px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   object-fit: cover;
-  margin-bottom: 1rem;
-  border: 3px solid #1db954;
+  margin-bottom: var(--spacing-4);
+  border: 3px solid var(--color-primary-500);
+  transition: transform var(--transition-base);
 }
-.artist-name {
-  font-size: 1.3rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+
+.yt-img:hover {
+  transform: scale(1.08) rotate(3deg);
 }
-.artist-info {
-  color: #555;
-  font-size: 1rem;
-  margin-bottom: 0.3rem;
-}
-.artist-link {
-  display: inline-block;
-  margin-top: 0.7rem;
-  color: #1db954;
-  text-decoration: none;
-  font-weight: 600;
-  transition: color 0.2s;
-}
-.artist-link:hover {
-  color: #169c43;
-}
+
+/* Reuse artist-name, artist-info, and artist-link from spotify.css */

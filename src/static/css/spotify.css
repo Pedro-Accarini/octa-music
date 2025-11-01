@@ -1,152 +1,213 @@
-body {
-  font-family: 'Inter', Arial, sans-serif;
-  background: var(--bg-color);
-  margin: 0;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+/**
+ * Spotify Search Component Styles
+ * Uses design tokens from design-tokens.css
+ */
 
+/* Search container - now using .card class from base.css */
 .container {
-  background: var(--card-bg);
-  padding: 1.5rem 2rem 2rem 2rem;
-  border-radius: 16px;
-  box-shadow: 0 4px 24px var(--shadow-light);
+  background: var(--surface-base);
+  padding: var(--card-padding);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
   min-width: 320px;
-  max-width: 400px;
+  max-width: 420px;
   width: 100%;
   text-align: center;
-  transition: all 0.3s ease;
+  transition: all var(--transition-base);
 }
 
 .container:hover {
-  box-shadow: 0 8px 32px var(--shadow-color);
+  box-shadow: var(--shadow-lg);
   transform: translateY(-2px);
 }
 
 h1 {
-  font-size: 1.6rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  color: var(--primary-color);
-  transition: color 0.3s ease;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-6);
+  color: var(--color-primary-500);
+  transition: color var(--transition-base);
 }
 
+/* Search form */
 form {
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-6);
   justify-content: center;
 }
 
+/* Search inputs */
 input[name="artist_name"],
-input[type="text"] {
+input[type="text"],
+input[name="channel_name"] {
   flex: 1;
-  padding: 0.6rem 0.85rem;
-  border: 1.5px solid var(--border-color);
-  border-radius: 8px;
-  font-size: 1rem;
-  background: var(--card-bg);
-  color: var(--text-color);
-  transition: all 0.3s ease;
-}
-
-input[name="artist_name"]:focus,
-input[type="text"]:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(29, 185, 84, 0.1);
+  min-height: var(--input-height-base);
+  padding: 0 var(--input-padding-x);
+  border: var(--input-border-width) solid var(--border-primary);
+  border-radius: var(--radius-base);
+  font-size: var(--font-size-base);
+  font-family: var(--font-primary);
+  background: var(--surface-base);
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
 }
 
 input[name="artist_name"]::placeholder,
-input[type="text"]::placeholder {
-  color: var(--text-secondary);
-  opacity: 0.7;
+input[type="text"]::placeholder,
+input[name="channel_name"]::placeholder {
+  color: var(--text-tertiary);
+  opacity: 0.8;
 }
 
+input[name="artist_name"]:hover,
+input[type="text"]:hover,
+input[name="channel_name"]:hover {
+  border-color: var(--border-focus);
+}
+
+input[name="artist_name"]:focus,
+input[type="text"]:focus,
+input[name="channel_name"]:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+}
+
+/* Search buttons */
 button[type="submit"] {
-  background: var(--primary-color);
-  color: #fff;
+  min-height: var(--button-height-base);
+  background: var(--color-primary-500);
+  color: var(--text-inverse);
   border: none;
-  border-radius: 8px;
-  padding: 0.6rem 1.3rem;
-  font-size: 1rem;
-  font-weight: 600;
+  border-radius: var(--radius-base);
+  padding: 0 var(--button-padding-x-base);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  font-family: var(--font-primary);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
 }
 
 button[type="submit"]:hover {
-  background: var(--primary-hover);
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px var(--shadow-color);
+  background: var(--color-primary-700);
+  transform: scale(1.02);
+  box-shadow: var(--shadow-primary);
 }
 
 button[type="submit"]:active {
   transform: scale(0.98);
+  box-shadow: var(--shadow-xs);
 }
 
+button[type="submit"]:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Artist/Channel card */
 .artist-card {
-  margin-top: 1.5rem;
-  padding: 1.5rem 1rem;
-  border-radius: 12px;
-  background: var(--bg-color);
-  box-shadow: 0 2px 8px var(--shadow-light);
-  transition: all 0.3s ease;
+  margin-top: var(--spacing-6);
+  padding: var(--spacing-6) var(--spacing-4);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
 }
 
 .artist-card:hover {
-  box-shadow: 0 4px 16px var(--shadow-color);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
 .artist-img {
   width: 120px;
   height: 120px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   object-fit: cover;
-  margin-bottom: 1rem;
-  border: 3px solid var(--primary-color);
-  transition: transform 0.3s ease, border-color 0.3s ease;
+  margin-bottom: var(--spacing-4);
+  border: 3px solid var(--color-primary-500);
+  transition: transform var(--transition-base), border-color var(--transition-base);
 }
 
 .artist-img:hover {
-  transform: scale(1.1) rotate(5deg);
-  border-color: var(--primary-hover);
+  transform: scale(1.08) rotate(3deg);
+  border-color: var(--color-primary-700);
 }
 
 .artist-name {
-  font-size: 1.3rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: var(--text-color);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-2);
+  color: var(--text-primary);
 }
 
 .artist-info {
   color: var(--text-secondary);
-  font-size: 1rem;
-  margin-bottom: 0.3rem;
-  transition: color 0.3s ease;
+  font-size: var(--font-size-base);
+  margin-bottom: var(--spacing-2);
+  transition: color var(--transition-base);
+  line-height: var(--line-height-normal);
 }
 
 .artist-info strong {
-  color: var(--text-color);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
 }
 
 .artist-link {
-  display: inline-block;
-  margin-top: 0.7rem;
-  padding: 0.5rem 1rem;
-  color: #fff;
-  background: var(--primary-color);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: var(--spacing-4);
+  min-height: var(--button-height-base);
+  padding: 0 var(--button-padding-x-base);
+  color: var(--text-inverse);
+  background: var(--color-primary-500);
   text-decoration: none;
-  font-weight: 600;
-  border-radius: 8px;
-  transition: all 0.3s ease;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
+  border-radius: var(--radius-base);
+  transition: all var(--transition-fast);
+  gap: var(--spacing-2);
 }
 
 .artist-link:hover {
-  background: var(--primary-hover);
+  background: var(--color-primary-700);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px var(--shadow-color);
+  box-shadow: var(--shadow-primary);
+  color: var(--text-inverse);
+}
+
+.artist-link:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.artist-link:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-xs);
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 479px) {
+  .container {
+    padding: var(--spacing-4);
+  }
+  
+  form {
+    flex-direction: column;
+    gap: var(--spacing-3);
+  }
+  
+  input[name="artist_name"],
+  input[type="text"],
+  input[name="channel_name"] {
+    width: 100%;
+  }
+  
+  button[type="submit"] {
+    width: 100%;
+  }
 }
