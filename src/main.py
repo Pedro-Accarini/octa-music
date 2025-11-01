@@ -138,12 +138,6 @@ def home():
         success_message=success_message
     )
 
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        return redirect(url_for('home'))
-    return render_template("login.html")
-
 @app.errorhandler(404)
 def not_found(e):
     """Handle 404 errors."""
