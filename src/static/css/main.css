@@ -353,6 +353,11 @@
     left: var(--spacing-2);
     right: var(--spacing-2);
   }
+  .flash-messages {
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
 }
 
 /* Mobile Standard: 375px - 479px */
@@ -490,5 +495,14 @@
   .toast {
     min-width: auto;
     width: 100%;
+  }
+  .flash-messages {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+  }
+  .flash-message {
+    font-size: 0.9rem;
+    padding: 0.8rem 2rem 0.8rem 0.8rem;
   }
 }
