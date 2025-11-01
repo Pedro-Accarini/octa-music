@@ -2,21 +2,24 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Estatísticas do YouTube</title>
+    <link rel="stylesheet" href="/static/css/design-tokens.css">
+    <link rel="stylesheet" href="/static/css/base.css">
     <link rel="stylesheet" href="/static/css/spotify.css">
     <link rel="stylesheet" href="/static/css/youtube.css">
 </head>
 <body>
     <div class="container">
         <h1 class="youtube-title">YouTube</h1>
-        <form method="get" style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; justify-content: center;">
-            <input type="text" name="channel_id" placeholder="YouTube Channel ID" required style="flex: 1; padding: 0.5rem 0.75rem; border: 1px solid #e1e4e8; border-radius: 8px; font-size: 1rem;">
-            <button type="submit" style="background: #1db954; color: #fff; border: none; border-radius: 8px; padding: 0.5rem 1.2rem; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s;">Search</button>
+        <form method="get" class="form-inline" role="search" aria-label="Search YouTube channel">
+            <input type="text" name="channel_id" class="input" placeholder="YouTube Channel ID" required aria-label="YouTube Channel ID" autocomplete="off">
+            <button type="submit" class="btn btn-primary">Search</button>
         </form>
         {% if title %}
-        <div class="artist-card">
+        <div class="artist-card" role="article" aria-label="Channel information">
             {% if image_url %}
-                <img class="artist-img" src="{{ image_url }}" alt="Image of channel {{ title }}">
+                <img class="artist-img" src="{{ image_url }}" alt="Profile picture of {{ title }}">
             {% endif %}
             <div class="artist-name">{{ title }}</div>
             <div class="artist-info">{{ description }}</div>
@@ -24,7 +27,7 @@
             <div class="artist-info"><strong>Views:</strong> {{ views }}</div>
             <div class="artist-info"><strong>Video Count:</strong> {{ video_count }}</div>
             {% if channel_url %}
-                <a class="artist-link" href="{{ channel_url }}" target="_blank">YouTube Channel</a>
+                <a class="artist-link" href="{{ channel_url }}" target="_blank" rel="noopener noreferrer" aria-label="Visit {{ title }} YouTube channel">YouTube Channel</a>
             {% endif %}
         </div>
         {% endif %}
