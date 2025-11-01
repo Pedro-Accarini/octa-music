@@ -4,14 +4,18 @@
 <div class="main-flex">
   <div class="container search-box">
     <h1>Spotify</h1>
-    <form action="/" method="post">
-      <input name="artist_name" placeholder="Artist Name" autocomplete="off" required aria-label="Artist name search">
+    <form action="/" method="post" onsubmit="showLoading('spotify-loading')" role="search" aria-label="Search for Spotify artist">
+      <input name="artist_name" placeholder="Artist Name" autocomplete="off" required aria-label="Artist name" aria-required="true">
       <button type="submit" name="action" value="spotify">Search</button>
     </form>
+    <div id="spotify-loading" class="loading-spinner" style="display: none;">
+      <div class="spinner"></div>
+      <p>Searching...</p>
+    </div>
     {% if artist %}
-      <div class="artist-card">
+      <div class="artist-card fade-in">
         {% if artist.image_url %}
-          <img class="artist-img" src="{{ artist.image_url }}" alt="Image of {{ artist.name }}">
+          <img class="artist-img" src="{{ artist.image_url }}" alt="Image of {{ artist.name }}" loading="lazy">
         {% endif %}
         <div class="artist-name">{{ artist.name }}</div>
         <div class="artist-info"><strong>Followers:</strong> {{ artist.followers }}</div>
@@ -20,53 +24,51 @@
           <div class="artist-info"><strong>Genres:</strong> {{ artist.genres }}</div>
         {% endif %}
         {% if artist.spotify_url %}
-          <a class="artist-link" href="{{ artist.spotify_url }}" target="_blank" rel="noopener noreferrer">View on Spotify</a>
+          <a class="artist-link" href="{{ artist.spotify_url }}" target="_blank" rel="noopener noreferrer">
+            🎵 Open in Spotify
+          </a>
         {% endif %}
       </div>
     {% endif %}
   </div>
   <div class="container search-box">
     <h1 class="youtube-title">YouTube</h1>
-    <form method="post" action="/">
-      <input type="text" name="channel_name" placeholder="YouTube Channel Name" required aria-label="YouTube channel name search">
+    <form method="post" action="/" onsubmit="showLoading('youtube-loading')" role="search" aria-label="Search for YouTube channel">
+      <input type="text" name="channel_name" placeholder="YouTube Channel Name" required aria-label="Channel name" autocomplete="off" aria-required="true">
       <button type="submit" name="action" value="youtube">Search</button>
     </form>
+    <div id="youtube-loading" class="loading-spinner" style="display: none;">
+      <div class="spinner"></div>
+      <p>Searching...</p>
+    </div>
     {% if yt_stats %}
-      <div class="artist-card">
+      <div class="artist-card fade-in">
         {% if yt_stats.image_url %}
-          <img class="artist-img" src="{{ yt_stats.image_url }}" alt="Image of channel {{ yt_stats.title }}">
+          <img class="artist-img" src="{{ yt_stats.image_url }}" alt="Image of channel {{ yt_stats.title }}" loading="lazy">
         {% endif %}
         <div class="artist-name">{{ yt_stats.title }}</div>
         {% if yt_stats.description %}
-          <div class="artist-info artist-description">{{ yt_stats.description[:150] }}{% if yt_stats.description|length > 150 %}...{% endif %}</div>
+          <div class="artist-info description-text">{{ yt_stats.description[:150] }}{% if yt_stats.description|length > 150 %}...{% endif %}</div>
         {% endif %}
-        <div class="artist-info"><strong>Subscribers:</strong> {{ yt_stats.subscribers }}</div>
-        <div class="artist-info"><strong>Total Views:</strong> {{ yt_stats.views }}</div>
-        <div class="artist-info"><strong>Videos:</strong> {{ yt_stats.video_count }}</div>
-        {% if yt_stats.top_video_title %}
-          <div class="top-video-section">
-            <div class="artist-info top-video-label"><strong>🔥 Most Viewed:</strong></div>
-            <div class="artist-info top-video-title">{{ yt_stats.top_video_title[:60] }}{% if yt_stats.top_video_title|length > 60 %}...{% endif %}</div>
-            {% if yt_stats.top_video_views %}
-              <div class="artist-info"><strong>Views:</strong> {{ yt_stats.top_video_views }}</div>
-            {% endif %}
-            {% if yt_stats.top_video_url %}
-              <a class="artist-link" href="{{ yt_stats.top_video_url }}" target="_blank" rel="noopener noreferrer">Watch Video</a>
-            {% endif %}
-          </div>
-        {% endif %}
+        <div class="artist-info"><strong>Subscribers:</strong> {{ "{:,}".format(yt_stats.subscribers|int) if yt_stats.subscribers else 'Hidden' }}</div>
+        <div class="artist-info"><strong>Views:</strong> {{ "{:,}".format(yt_stats.views|int) if yt_stats.views else 'N/A' }}</div>
+        <div class="artist-info"><strong>Video Count:</strong> {{ "{:,}".format(yt_stats.video_count|int) if yt_stats.video_count else 'N/A' }}</div>
         {% if yt_stats.channel_url %}
-          <a class="artist-link" href="{{ yt_stats.channel_url }}" target="_blank" rel="noopener noreferrer">View on YouTube</a>
+          <a class="artist-link" href="{{ yt_stats.channel_url }}" target="_blank" rel="noopener noreferrer">
+            📺 Open in YouTube
+          </a>
         {% endif %}
       </div>
     {% endif %}
   </div>
 </div>
-{% if artist or yt_stats %}
-<div class="clear-btn-row">
-  <form method="post" action="/">
-    <button type="submit" name="action" value="clear" class="clear-btn">Clear Results</button>
-  </form>
-</div>
-{% endif %}
+
+<script>
+  function showLoading(elementId) {
+    const loadingEl = document.getElementById(elementId);
+    if (loadingEl) {
+      loadingEl.style.display = 'block';
+    }
+  }
+</script>
 {% endblock %}

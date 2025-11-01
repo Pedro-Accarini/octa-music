@@ -1,5 +1,6 @@
 import os
 import sys
+import logging
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 try:
@@ -7,17 +8,44 @@ try:
 except ImportError:
     __version__ = "unknown"
 
-from flask import Flask, request, render_template, session, redirect, url_for, flash
+from flask import Flask, request, render_template, session, redirect, url_for
+from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from dotenv import load_dotenv
 from src.config import DevelopmentConfig, PreproductionConfig, ProductionConfig, Config
 from src.services.spotify_service import SpotifyService
 from src.services.youtube_service import get_channel_stats_by_name
-from src.models import db, Playlist, PlaylistSong
+from src.api.routes import api_bp
 
 load_dotenv()
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "octa-music-secret")
+
+# Configure CORS
+CORS(app, resources={
+    r"/api/*": {
+        "origins": "*",
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type"]
+    }
+})
+
+# Configure rate limiting
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://"
+)
 
 app_env = os.getenv("APP_ENV", "development").lower()
 
@@ -30,59 +58,84 @@ elif app_env == "development":
 else:
     app.config.from_object(Config)
 
-# Initialize database
-db.init_app(app)
+# Register API blueprint
+app.register_blueprint(api_bp)
 
-with app.app_context():
-    db.create_all()
-
-spotify_service = SpotifyService()
+try:
+    spotify_service = SpotifyService()
+except ValueError as e:
+    logger.warning(f"Failed to initialize Spotify service: {e}")
+    spotify_service = None
 
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY", "YOUR_API_KEY")
 
 @app.route("/", methods=["GET", "POST"])
+@limiter.limit("30 per minute")
 def home():
+    error_message = None
+    success_message = None
+    
     if request.method == "POST":
         action = request.form.get("action")
+        
         if action == "spotify":
-            artist_name = request.form.get("artist_name")
+            artist_name = request.form.get("artist_name", "").strip()
             if artist_name:
-                try:
-                    artist = spotify_service.search_artist(artist_name)
-                    if artist:
-                        session['artist'] = artist
-                        flash(f'Found artist: {artist["name"]}', 'success')
-                    else:
-                        session['artist'] = None
-                        flash(f'No artist found for "{artist_name}". Please try another search.', 'error')
-                except Exception as e:
-                    session['artist'] = None
-                    flash('An error occurred while searching Spotify. Please try again.', 'error')
+                if not spotify_service:
+                    error_message = "Spotify service is not configured"
+                    session['error'] = error_message
+                else:
+                    try:
+                        artist = spotify_service.search_artist(artist_name)
+                        if artist:
+                            session['artist'] = artist
+                            success_message = f"Found artist: {artist['name']}"
+                            session['success'] = success_message
+                        else:
+                            error_message = f"No artist found for '{artist_name}'"
+                            session['error'] = error_message
+                    except Exception as e:
+                        logger.error(f"Error searching artist: {e}")
+                        error_message = "An error occurred while searching for the artist"
+                        session['error'] = error_message
+            else:
+                error_message = "Please enter an artist name"
+                session['error'] = error_message
+                
         elif action == "youtube":
-            channel_name = request.form.get("channel_name")
+            channel_name = request.form.get("channel_name", "").strip()
             if channel_name:
                 try:
                     yt_stats = get_channel_stats_by_name(channel_name, YOUTUBE_API_KEY)
                     if yt_stats:
                         session['yt_stats'] = yt_stats
-                        flash(f'Found channel: {yt_stats["title"]}', 'success')
+                        success_message = f"Found channel: {yt_stats['title']}"
+                        session['success'] = success_message
                     else:
-                        session['yt_stats'] = None
-                        flash(f'No channel found for "{channel_name}". Please try another search.', 'error')
+                        error_message = f"No channel found for '{channel_name}'"
+                        session['error'] = error_message
                 except Exception as e:
-                    session['yt_stats'] = None
-                    flash('An error occurred while searching YouTube. Please try again.', 'error')
-        elif action == "clear":
-            session.pop('artist', None)
-            session.pop('yt_stats', None)
-            flash('Search results cleared.', 'info')
+                    logger.error(f"Error searching channel: {e}")
+                    error_message = "An error occurred while searching for the channel"
+                    session['error'] = error_message
+            else:
+                error_message = "Please enter a channel name"
+                session['error'] = error_message
+                
         return redirect(url_for('home'))
+    
+    # Get messages from session and clear them
+    error_message = session.pop('error', None)
+    success_message = session.pop('success', None)
     artist = session.get('artist')
     yt_stats = session.get('yt_stats')
+    
     return render_template(
         "spotify.html",
         artist=artist,
-        yt_stats=yt_stats
+        yt_stats=yt_stats,
+        error_message=error_message,
+        success_message=success_message
     )
 
 @app.route("/login", methods=["GET", "POST"])
@@ -91,136 +144,21 @@ def login():
         return redirect(url_for('home'))
     return render_template("login.html")
 
-# Playlist Routes
-@app.route("/playlists")
-def playlists():
-    """Display all playlists"""
-    all_playlists = Playlist.query.order_by(Playlist.created_at.desc()).all()
-    return render_template("playlists.html", playlists=all_playlists)
+@app.errorhandler(404)
+def not_found(e):
+    """Handle 404 errors."""
+    return render_template("spotify.html", error_message="Page not found"), 404
 
-@app.route("/playlists/create", methods=["GET", "POST"])
-def create_playlist():
-    """Create a new playlist"""
-    if request.method == "POST":
-        name = request.form.get("name")
-        description = request.form.get("description")
-        
-        if not name:
-            flash("Playlist name is required", "error")
-            return redirect(url_for("create_playlist"))
-        
-        playlist = Playlist(name=name, description=description)
-        db.session.add(playlist)
-        db.session.commit()
-        
-        flash(f'Playlist "{name}" created successfully!', "success")
-        return redirect(url_for("playlists"))
-    
-    return render_template("create_playlist.html")
+@app.errorhandler(500)
+def internal_error(e):
+    """Handle 500 errors."""
+    logger.error(f"Internal error: {e}")
+    return render_template("spotify.html", error_message="An internal error occurred"), 500
 
-@app.route("/playlists/<int:playlist_id>")
-def view_playlist(playlist_id):
-    """View a specific playlist with its songs"""
-    playlist = Playlist.query.get_or_404(playlist_id)
-    return render_template("view_playlist.html", playlist=playlist)
-
-@app.route("/playlists/<int:playlist_id>/edit", methods=["GET", "POST"])
-def edit_playlist(playlist_id):
-    """Edit playlist details"""
-    playlist = Playlist.query.get_or_404(playlist_id)
-    
-    if request.method == "POST":
-        name = request.form.get("name")
-        description = request.form.get("description")
-        if not name:
-            flash("Playlist name is required", "error")
-            return redirect(url_for("edit_playlist", playlist_id=playlist_id))
-        playlist.name = name
-        playlist.description = description
-        db.session.commit()
-        
-        flash(f'Playlist "{playlist.name}" updated successfully!', "success")
-        return redirect(url_for("view_playlist", playlist_id=playlist_id))
-    return render_template("edit_playlist.html", playlist=playlist)
-
-@app.route("/playlists/<int:playlist_id>/delete", methods=["POST"])
-def delete_playlist(playlist_id):
-    """Delete a playlist"""
-    playlist = Playlist.query.get_or_404(playlist_id)
-    playlist_name = playlist.name
-    
-    db.session.delete(playlist)
-    db.session.commit()
-    
-    flash(f'Playlist "{playlist_name}" deleted successfully!', "success")
-    return redirect(url_for("playlists"))
-
-@app.route("/playlists/<int:playlist_id>/search", methods=["GET"])
-def search_songs(playlist_id):
-    """Search for songs to add to playlist"""
-    playlist = Playlist.query.get_or_404(playlist_id)
-    query = request.args.get("q", "")
-    
-    tracks = []
-    if query:
-        tracks = spotify_service.search_tracks(query, limit=20)
-    
-    return render_template("search_songs.html", playlist=playlist, tracks=tracks, query=query)
-
-@app.route("/playlists/<int:playlist_id>/add_song", methods=["POST"])
-def add_song_to_playlist(playlist_id):
-    """Add a song to a playlist"""
-    Playlist.query.get_or_404(playlist_id)
-    
-    track_id = request.form.get("track_id")
-    track_name = request.form.get("track_name")
-    artist_name = request.form.get("artist_name")
-    album_name = request.form.get("album_name")
-    duration_ms = request.form.get("duration_ms")
-    image_url = request.form.get("image_url")
-    spotify_url = request.form.get("spotify_url")
-    
-    # Check if song already exists in playlist
-    existing = PlaylistSong.query.filter_by(
-        playlist_id=playlist_id,
-        spotify_track_id=track_id
-    ).first()
-    
-    if existing:
-        flash(f'"{track_name}" is already in this playlist!', "warning")
-    else:
-        try:
-            duration = int(duration_ms) if duration_ms else None
-        except (ValueError, TypeError):
-            duration = None
-        
-        song = PlaylistSong(
-            playlist_id=playlist_id,
-            spotify_track_id=track_id,
-            track_name=track_name,
-            artist_name=artist_name,
-            album_name=album_name,
-            duration_ms=duration,
-            image_url=image_url,
-            spotify_url=spotify_url
-        )
-        db.session.add(song)
-        db.session.commit()
-        flash(f'"{track_name}" added to playlist!', "success")
-    
-    return redirect(url_for("view_playlist", playlist_id=playlist_id))
-
-@app.route("/playlists/<int:playlist_id>/remove_song/<int:song_id>", methods=["POST"])
-def remove_song_from_playlist(playlist_id, song_id):
-    """Remove a song from a playlist"""
-    song = PlaylistSong.query.filter_by(id=song_id, playlist_id=playlist_id).first_or_404()
-    song_name = song.track_name
-    
-    db.session.delete(song)
-    db.session.commit()
-    
-    flash(f'"{song_name}" removed from playlist!', "success")
-    return redirect(url_for("view_playlist", playlist_id=playlist_id))
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    """Handle rate limit errors."""
+    return render_template("spotify.html", error_message="Rate limit exceeded. Please try again later."), 429
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

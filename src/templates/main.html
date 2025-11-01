@@ -10,11 +10,12 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://octa-music.onrender.com">
   <title>{% block title %}Spotify & YouTube Artist Metrics{% endblock %}</title>
-  <link href="https://fonts.googleapis.com/css?family=Inter:400,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/design-tokens.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/spotify.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/youtube.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/playlists.css') }}">
 </head>
 <body>
   <header class="user-header">
@@ -34,6 +35,9 @@
       <a href="{% if session.get('logged_in') %}#account{% else %}/login{% endif %}">Account</a>
       <a href="{% if session.get('logged_in') %}#config{% else %}/login{% endif %}">Configuration</a>
     </nav>
+    <button class="theme-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
+      <span class="theme-icon">🌙</span>
+    </button>
   </header>
   {% if request.endpoint == 'home' %}
   <div class="login-btn-row">
@@ -41,21 +45,13 @@
   </div>
   {% endif %}
   
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      <div class="flash-messages">
-        {% for category, message in messages %}
-          <div class="flash-message flash-{{ category }}" role="alert">
-            {{ message }}
-            <button class="flash-close" onclick="this.parentElement.remove()" aria-label="Close message">&times;</button>
-          </div>
-        {% endfor %}
-      </div>
-    {% endif %}
-  {% endwith %}
+  <!-- Message Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
   
   {% block content %}{% endblock %}
+  
   <script>
+    // Menu toggle functionality
     document.addEventListener('click', function(e) {
       const menu = document.querySelector('.user-menu');
       const btn = document.querySelector('.menu-btn');
@@ -64,14 +60,55 @@
       }
     });
     
-    // Auto-hide flash messages after 5 seconds
-    setTimeout(function() {
-      const flashMessages = document.querySelectorAll('.flash-message');
-      flashMessages.forEach(function(msg) {
-        msg.style.opacity = '0';
-        setTimeout(function() { msg.remove(); }, 300);
-      });
-    }, 5000);
+    // Dark mode functionality
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      localStorage.setItem('darkMode', isDark);
+      updateThemeIcon(isDark);
+    }
+    
+    function updateThemeIcon(isDark) {
+      const icon = document.querySelector('.theme-icon');
+      if (icon) {
+        icon.textContent = isDark ? '☀️' : '🌙';
+      }
+    }
+    
+    // Load saved theme preference
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.body.classList.add('dark-mode');
+      updateThemeIcon(true);
+    }
+    
+    // Toast notification system
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.textContent = message;
+      
+      container.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.classList.add('show');
+      }, 10);
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+          container.removeChild(toast);
+        }, 300);
+      }, 4000);
+    }
+    
+    // Show flash messages
+    {% if error_message %}
+      showToast('{{ error_message }}', 'error');
+    {% endif %}
+    {% if success_message %}
+      showToast('{{ success_message }}', 'success');
+    {% endif %}
   </script>
 </body>
 </html>

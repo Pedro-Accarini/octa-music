@@ -3,4 +3,5 @@ spotipy
 python-dotenv
 pytest
 gunicorn
-Flask-SQLAlchemy
+flask-cors
+flask-limiter
