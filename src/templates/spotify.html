@@ -4,8 +4,8 @@
 <div class="main-flex">
   <div class="container search-box">
     <h1>Spotify</h1>
-    <form action="/" method="post" onsubmit="showLoading('spotify-loading')">
-      <input name="artist_name" placeholder="Artist Name" autocomplete="off" required aria-label="Artist name">
+    <form action="/" method="post" onsubmit="showLoading('spotify-loading')" role="search" aria-label="Search for Spotify artist">
+      <input name="artist_name" placeholder="Artist Name" autocomplete="off" required aria-label="Artist name" aria-required="true">
       <button type="submit" name="action" value="spotify">Search</button>
     </form>
     <div id="spotify-loading" class="loading-spinner" style="display: none;">
