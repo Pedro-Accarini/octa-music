@@ -142,7 +142,7 @@
       </div>
 
       <div class="signup-link">
-        Don't have an account? <a href="#signup">Sign up</a>
+        Don't have an account? <a href="/register">Sign up</a>
       </div>
     </form>
   </div>
@@ -169,14 +169,26 @@ function togglePassword() {
 }
 
 // Loading state for form submission
-document.querySelector('.login-form').addEventListener('submit', function(e) {
-  const btn = this.querySelector('.login-submit-btn');
-  const btnText = btn.querySelector('.btn-text');
-  const spinner = btn.querySelector('.btn-spinner');
-  
-  btn.disabled = true;
-  btnText.style.display = 'none';
-  spinner.style.display = 'block';
-});
+const loginForm = document.querySelector('.login-form');
+if (loginForm) {
+  loginForm.addEventListener('submit', function(e) {
+    const btn = this.querySelector('.login-submit-btn');
+    const btnText = btn.querySelector('.btn-text');
+    const spinner = btn.querySelector('.btn-spinner');
+    
+    btn.disabled = true;
+    btnText.style.display = 'none';
+    spinner.style.display = 'block';
+    
+    // Reset button after timeout if form fails to redirect
+    setTimeout(function() {
+      if (btn.disabled) {
+        btn.disabled = false;
+        btnText.style.display = 'block';
+        spinner.style.display = 'none';
+      }
+    }, 5000);
+  });
+}
 </script>
 {% endblock %}
