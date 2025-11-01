@@ -153,4 +153,3 @@ cython_debug/
 
 # Sensitive Data
 .env.example
-*.env.example

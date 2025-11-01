@@ -30,7 +30,7 @@
 
 .login-hero {
   flex: 1;
-  background: linear-gradient(135deg, #0d7a2d 0%, #1db954 50%, #66bb6a 100%);
+  background: linear-gradient(135deg, var(--color-primary-900) 0%, var(--color-primary-500) 50%, var(--color-primary-400) 100%);
   position: relative;
   overflow: hidden;
   display: flex;
@@ -183,8 +183,14 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-6);
-  backdrop-filter: blur(10px);
   border: 1px solid var(--border-secondary);
+}
+
+/* Browsers with backdrop-filter support */
+@supports (backdrop-filter: blur(10px)) {
+  .login-form {
+    backdrop-filter: blur(10px);
+  }
 }
 
 .form-header h2 {
@@ -227,20 +233,22 @@
   cursor: not-allowed;
   transition: all var(--transition-fast);
   opacity: 0.6;
+  pointer-events: none;
 }
 
-.social-btn:not(:disabled) {
+.social-btn:not([aria-disabled="true"]) {
   cursor: pointer;
   opacity: 1;
+  pointer-events: auto;
 }
 
-.social-btn:not(:disabled):hover {
+.social-btn:not([aria-disabled="true"]):hover {
   border-color: var(--border-focus);
   box-shadow: var(--shadow-sm);
   transform: translateY(-1px);
 }
 
-.social-btn:not(:disabled):active {
+.social-btn:not([aria-disabled="true"]):active {
   transform: translateY(0);
 }
 
