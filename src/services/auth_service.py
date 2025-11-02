@@ -124,6 +124,7 @@ class AuthService:
             username=username,
             email=email,
             password_hash=password_hash,
+            email_verified=True,  # Auto-verify for now (no email service)
             verification_token=verification_token,
             verification_token_expires=datetime.utcnow() + timedelta(hours=24)
         )
