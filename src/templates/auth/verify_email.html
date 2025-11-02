@@ -1,0 +1,35 @@
+{% extends "main.html" %}
+
+{% block title %}Email Verification - Octa Music{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      {% if success %}
+        <div class="auth-logo">✓</div>
+        <h1>Email Verified!</h1>
+        <p>{{ message }}</p>
+      {% else %}
+        <div class="auth-logo">✗</div>
+        <h1>Verification Failed</h1>
+        <p>{{ message }}</p>
+      {% endif %}
+    </div>
+
+    <div class="auth-links" style="margin-top: var(--spacing-6);">
+      {% if success %}
+        <a href="/login" class="auth-button auth-button-primary" style="display: block; text-decoration: none; text-align: center;">
+          Continue to Login
+        </a>
+      {% else %}
+        <a href="/register" class="auth-button auth-button-primary" style="display: block; text-decoration: none; text-align: center;">
+          Register Again
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

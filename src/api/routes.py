@@ -3,10 +3,19 @@ from flask import Blueprint, request, jsonify
 from src.services.spotify_service import SpotifyService
 from src.services.youtube_service import get_channel_stats_by_name
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 api_bp = Blueprint('api', __name__, url_prefix='/api/v1')
 
-spotify_service = SpotifyService()
+# Initialize Spotify service if credentials are available
+try:
+    spotify_service = SpotifyService()
+except ValueError as e:
+    logger.warning(f"Spotify service not initialized: {e}")
+    spotify_service = None
+
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY", "YOUR_API_KEY")
 
 def create_error_response(message, status_code=400):
