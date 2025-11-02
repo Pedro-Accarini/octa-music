@@ -43,7 +43,7 @@ jobs:
       - name: Publish New Git Tag
         run: |
           echo "Checking project versioning..."
-          PROJECT_VERSION=$(cat ./src/__init__.py | grep -oP '(?<=__version__ = ")[^"]*')
+          PROJECT_VERSION=$(cat ./src/version.py | grep -oP '(?<=__version__ = ")[^"]*')
           git fetch --tags --unshallow || git fetch --tags
           LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null || echo "")
 
