@@ -85,7 +85,7 @@ class AuthService:
         Returns:
             Tuple of (User object, error_message)
         """
-        if not self.users_collection:
+        if self.users_collection is None:
             return None, "Database not available"
         
         # Sanitize inputs
@@ -153,7 +153,7 @@ class AuthService:
         Returns:
             Tuple of (User object, error_message)
         """
-        if not self.users_collection:
+        if self.users_collection is None:
             return None, "Database not available"
         
         login = sanitize_input(login.lower())
@@ -222,7 +222,7 @@ class AuthService:
         Returns:
             Tuple of (success, error_message)
         """
-        if not self.users_collection:
+        if self.users_collection is None:
             return False, "Database not available"
         
         # Verify token (24 hours expiry)
@@ -262,7 +262,7 @@ class AuthService:
         Returns:
             Tuple of (reset_token, error_message)
         """
-        if not self.users_collection:
+        if self.users_collection is None:
             return None, "Database not available"
         
         email = sanitize_input(email.lower())
@@ -302,7 +302,7 @@ class AuthService:
         Returns:
             Tuple of (success, error_message)
         """
-        if not self.users_collection:
+        if self.users_collection is None:
             return False, "Database not available"
         
         # Verify token (1 hour expiry)
@@ -352,7 +352,7 @@ class AuthService:
         Returns:
             User object or None
         """
-        if not self.users_collection:
+        if self.users_collection is None:
             return None
         
         try:
@@ -375,7 +375,7 @@ class AuthService:
         Returns:
             Tuple of (success, error_message)
         """
-        if not self.users_collection:
+        if self.users_collection is None:
             return False, "Database not available"
         
         new_username = sanitize_input(new_username)
@@ -416,7 +416,7 @@ class AuthService:
         Returns:
             Tuple of (verification_token, error_message)
         """
-        if not self.users_collection:
+        if self.users_collection is None:
             return None, "Database not available"
         
         new_email = sanitize_input(new_email.lower())
@@ -476,7 +476,7 @@ class AuthService:
         Returns:
             Tuple of (success, error_message)
         """
-        if not self.users_collection:
+        if self.users_collection is None:
             return False, "Database not available"
         
         # Get user

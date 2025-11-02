@@ -48,13 +48,13 @@ CORS(app, resources={
     }
 })
 
-# Configure rate limiting
-limiter = Limiter(
-    app=app,
-    key_func=get_remote_address,
-    default_limits=["200 per day", "50 per hour"],
-    storage_uri="memory://"
-)
+# Configure rate limiting - DISABLED FOR LOCAL TESTING
+# limiter = Limiter(
+#     app=app,
+#     key_func=get_remote_address,
+#     default_limits=["200 per day", "50 per hour"],
+#     storage_uri="memory://"
+# )
 
 app_env = os.getenv("APP_ENV", "development").lower()
 
@@ -80,8 +80,8 @@ db_service.init_app(app)
 auth_service.init_app(app)
 email_service.init_app(app)
 
-# Initialize rate limiter for auth routes
-init_auth_limiter(limiter)
+# Initialize rate limiter for auth routes - DISABLED FOR LOCAL TESTING
+# init_auth_limiter(limiter)
 
 # Register API blueprints
 app.register_blueprint(api_bp)
@@ -135,7 +135,7 @@ def save_search_history(user_id, search_query, artist_result):
         # Don't fail the search if history save fails
 
 @app.route("/", methods=["GET", "POST"])
-@limiter.limit("30 per minute")
+# @limiter.limit("30 per minute")  # DISABLED FOR LOCAL TESTING
 def home():
     error_message = None
     success_message = None

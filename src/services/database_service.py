@@ -51,7 +51,7 @@ class DatabaseService:
     
     def _create_indexes(self):
         """Create database indexes for optimized queries."""
-        if not self.db:
+        if self.db is None:
             return
         
         try:
@@ -73,19 +73,19 @@ class DatabaseService:
     
     def get_users_collection(self):
         """Get users collection."""
-        if not self.db:
+        if self.db is None:
             return None
         return self.db.users
     
     def get_search_history_collection(self):
         """Get search history collection."""
-        if not self.db:
+        if self.db is None:
             return None
         return self.db.search_history
     
     def is_connected(self) -> bool:
         """Check if database is connected."""
-        if not self.client or not self.db:
+        if self.client is None or self.db is None:
             return False
         
         try:
