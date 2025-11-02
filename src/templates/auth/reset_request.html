@@ -1,0 +1,53 @@
+{% extends "main.html" %}
+
+{% block title %}Reset Password - Octa Music{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="auth-logo">🔒</div>
+      <h1>Forgot Password?</h1>
+      <p>Enter your email and we'll send you a reset link</p>
+    </div>
+
+    <form id="resetRequestForm" class="auth-form">
+      <div class="auth-form-group">
+        <label for="email">
+          Email Address
+          <span class="required">*</span>
+        </label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          class="auth-input"
+          placeholder="Enter your email address"
+          required
+          autocomplete="email"
+        >
+        <span class="field-error" id="email-error"></span>
+      </div>
+
+      <button type="submit" class="auth-button auth-button-primary" id="resetButton">
+        <span id="resetButtonText">Send Reset Link</span>
+        <span id="resetButtonSpinner" class="auth-loading" style="display: none;"></span>
+      </button>
+
+      <div class="auth-links">
+        <a href="/login" class="auth-link">← Back to Login</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+<script>
+  // Initialize reset request form
+  if (typeof initResetRequestForm === 'function') {
+    initResetRequestForm();
+  }
+</script>
+{% endblock %}
