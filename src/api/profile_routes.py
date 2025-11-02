@@ -155,6 +155,8 @@ def update_email():
     
     token, error = auth_service.update_email(user_id, new_email)
     
+    # Note: error messages from auth_service are always user-safe strings,
+    # never raw exception messages
     if error:
         return jsonify({
             "success": False,

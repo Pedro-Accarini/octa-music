@@ -49,7 +49,7 @@ def register():
     if limiter:
         try:
             limiter.check_limit("5 per hour")
-        except Exception as e:
+        except Exception:
             return jsonify({
                 "success": False,
                 "message": "Too many registration attempts. Please try again later."
@@ -85,6 +85,8 @@ def register():
     # Create user
     user, error = auth_service.create_user(username, email, password)
     
+    # Note: error messages from auth_service are always user-safe strings,
+    # never raw exception messages
     if error:
         return jsonify({
             "success": False,
@@ -135,7 +137,7 @@ def login():
         try:
             limiter.check_limit("3 per minute")
             limiter.check_limit("10 per hour")
-        except Exception as e:
+        except Exception:
             return jsonify({
                 "success": False,
                 "message": "Too many login attempts. Please try again later."
@@ -263,7 +265,7 @@ def reset_request():
     if limiter:
         try:
             limiter.check_limit("3 per hour")
-        except Exception as e:
+        except Exception:
             return jsonify({
                 "success": False,
                 "message": "Too many reset requests. Please try again later."
