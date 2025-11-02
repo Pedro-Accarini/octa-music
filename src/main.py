@@ -1,6 +1,7 @@
 import os
 import sys
 import logging
+from datetime import timedelta
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 try:
@@ -17,6 +18,12 @@ from src.config import DevelopmentConfig, PreproductionConfig, ProductionConfig,
 from src.services.spotify_service import SpotifyService
 from src.services.youtube_service import get_channel_stats_by_name
 from src.api.routes import api_bp
+from src.api.auth_routes import auth_bp, init_limiter as init_auth_limiter
+from src.api.profile_routes import profile_bp
+from src.services.database_service import db_service
+from src.services.auth_service import auth_service
+from src.services.email_service import email_service
+from src.models import db as sqlalchemy_db
 
 load_dotenv()
 
@@ -34,7 +41,7 @@ app.secret_key = os.getenv("SECRET_KEY", "octa-music-secret")
 CORS(app, resources={
     r"/api/*": {
         "origins": "*",
-        "methods": ["GET", "POST", "OPTIONS"],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         "allow_headers": ["Content-Type"]
     }
 })
@@ -58,8 +65,26 @@ elif app_env == "development":
 else:
     app.config.from_object(Config)
 
-# Register API blueprint
+# Configure session
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(
+    seconds=app.config.get('PERMANENT_SESSION_LIFETIME', 4800)
+)
+
+# Initialize SQLAlchemy for playlists (existing functionality)
+sqlalchemy_db.init_app(app)
+
+# Initialize MongoDB for authentication
+db_service.init_app(app)
+auth_service.init_app(app)
+email_service.init_app(app)
+
+# Initialize rate limiter for auth routes
+init_auth_limiter(limiter)
+
+# Register API blueprints
 app.register_blueprint(api_bp)
+app.register_blueprint(auth_bp)
+app.register_blueprint(profile_bp)
 
 try:
     spotify_service = SpotifyService()
@@ -137,6 +162,41 @@ def home():
         error_message=error_message,
         success_message=success_message
     )
+
+# Authentication page routes
+@app.route("/login")
+def login_page():
+    """Render login page."""
+    # Redirect to home if already logged in
+    if session.get('user_id'):
+        return redirect(url_for('home'))
+    return render_template("auth/login.html")
+
+@app.route("/register")
+def register_page():
+    """Render registration page."""
+    # Redirect to home if already logged in
+    if session.get('user_id'):
+        return redirect(url_for('home'))
+    return render_template("auth/register.html")
+
+@app.route("/reset-password")
+def reset_password_request_page():
+    """Render password reset request page."""
+    return render_template("auth/reset_request.html")
+
+@app.route("/reset-password/<token>")
+def reset_password_page(token):
+    """Render password reset page."""
+    return render_template("auth/reset_password.html", token=token)
+
+@app.route("/profile")
+def profile_page():
+    """Render user profile page."""
+    # Require authentication
+    if not session.get('user_id'):
+        return redirect(url_for('login_page'))
+    return render_template("auth/profile.html")
 
 @app.errorhandler(404)
 def not_found(e):
