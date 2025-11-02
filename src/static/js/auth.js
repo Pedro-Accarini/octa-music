@@ -200,8 +200,15 @@ function initLoginForm() {
       }
     } catch (error) {
       console.error('Login error:', error);
+      
+      // Better error message for non-JSON responses
+      let errorMessage = 'An error occurred. Please try again.';
+      if (error instanceof SyntaxError) {
+        errorMessage = 'Server error. Please try again later.';
+      }
+      
       if (typeof showToast === 'function') {
-        showToast('An error occurred. Please try again.', 'error');
+        showToast(errorMessage, 'error');
       }
       
       // Re-enable submit button

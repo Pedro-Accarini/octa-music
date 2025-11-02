@@ -178,20 +178,18 @@ def login():
     session['remember_me'] = remember_me
     session['login_time'] = datetime.utcnow().isoformat()
     
-    # Set session duration
+    # Set session duration based on remember_me
     from datetime import timedelta
     from flask import current_app
     
     if remember_me:
-        # Remember me: 30 days
+        # Remember me: 30 days (2592000 seconds)
         session.permanent = True
-        remember_duration = current_app.config.get('REMEMBER_ME_DURATION', 2592000)
-        current_app.permanent_session_lifetime = timedelta(seconds=remember_duration)
+        current_app.permanent_session_lifetime = timedelta(seconds=2592000)
     else:
-        # Regular session: 80 minutes
+        # Regular session: 80 minutes (4800 seconds)
         session.permanent = True
-        session_duration = current_app.config.get('PERMANENT_SESSION_LIFETIME', 4800)
-        current_app.permanent_session_lifetime = timedelta(seconds=session_duration)
+        current_app.permanent_session_lifetime = timedelta(seconds=4800)
     
     logger.info(f"User logged in: {user.username} (remember_me: {remember_me})")
     
