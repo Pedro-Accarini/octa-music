@@ -150,6 +150,3 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
-
-# Sensitive Data
-.env.example

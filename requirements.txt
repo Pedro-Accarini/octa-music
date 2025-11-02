@@ -5,3 +5,11 @@ pytest
 gunicorn
 flask-cors
 flask-limiter
+pymongo
+flask-pymongo
+bcrypt
+flask-login
+flask-mail
+itsdangerous
+email-validator
+flask-sqlalchemy

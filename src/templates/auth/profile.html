@@ -1,0 +1,189 @@
+{% extends "main.html" %}
+
+{% block title %}Profile - Octa Music{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+
+<div class="profile-container">
+  <div class="profile-header">
+    <h1>My Profile</h1>
+  </div>
+
+  <!-- Account Information Section -->
+  <div class="profile-section">
+    <h2 class="profile-section-title">Account Information</h2>
+    <div class="profile-info-grid" id="profileInfo">
+      <div class="profile-info-item">
+        <span class="profile-info-label">Username</span>
+        <span class="profile-info-value" id="displayUsername">Loading...</span>
+      </div>
+      <div class="profile-info-item">
+        <span class="profile-info-label">Email</span>
+        <span class="profile-info-value" id="displayEmail">Loading...</span>
+      </div>
+      <div class="profile-info-item">
+        <span class="profile-info-label">Email Status</span>
+        <span class="profile-info-value" id="displayEmailStatus">Loading...</span>
+      </div>
+      <div class="profile-info-item">
+        <span class="profile-info-label">Member Since</span>
+        <span class="profile-info-value" id="displayCreatedAt">Loading...</span>
+      </div>
+      <div class="profile-info-item">
+        <span class="profile-info-label">Last Login</span>
+        <span class="profile-info-value" id="displayLastLogin">Loading...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Username Section -->
+  <div class="profile-section">
+    <h2 class="profile-section-title">Update Username</h2>
+    <form id="updateUsernameForm" class="auth-form">
+      <div class="auth-form-group">
+        <label for="newUsername">
+          New Username
+          <span class="required">*</span>
+        </label>
+        <input
+          type="text"
+          id="newUsername"
+          name="username"
+          class="auth-input"
+          placeholder="Enter new username"
+          required
+          minlength="3"
+          maxlength="30"
+        >
+        <span class="field-error" id="username-error"></span>
+      </div>
+      <button type="submit" class="auth-button auth-button-primary" id="updateUsernameButton">
+        <span id="updateUsernameButtonText">Update Username</span>
+        <span id="updateUsernameButtonSpinner" class="auth-loading" style="display: none;"></span>
+      </button>
+    </form>
+  </div>
+
+  <!-- Edit Email Section -->
+  <div class="profile-section">
+    <h2 class="profile-section-title">Update Email</h2>
+    <form id="updateEmailForm" class="auth-form">
+      <div class="auth-form-group">
+        <label for="newEmail">
+          New Email
+          <span class="required">*</span>
+        </label>
+        <input
+          type="email"
+          id="newEmail"
+          name="email"
+          class="auth-input"
+          placeholder="Enter new email address"
+          required
+        >
+        <span class="field-error" id="email-error"></span>
+      </div>
+      <p style="font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: var(--spacing-2);">
+        Note: You'll need to verify your new email address.
+      </p>
+      <button type="submit" class="auth-button auth-button-primary" id="updateEmailButton">
+        <span id="updateEmailButtonText">Update Email</span>
+        <span id="updateEmailButtonSpinner" class="auth-loading" style="display: none;"></span>
+      </button>
+    </form>
+  </div>
+
+  <!-- Change Password Section -->
+  <div class="profile-section">
+    <h2 class="profile-section-title">Change Password</h2>
+    <form id="changePasswordForm" class="auth-form">
+      <div class="auth-form-group">
+        <label for="currentPassword">
+          Current Password
+          <span class="required">*</span>
+        </label>
+        <div class="password-input-wrapper">
+          <input
+            type="password"
+            id="currentPassword"
+            name="current_password"
+            class="auth-input"
+            placeholder="Enter current password"
+            required
+            autocomplete="current-password"
+          >
+          <button type="button" class="password-toggle" id="toggleCurrentPassword" aria-label="Toggle password visibility">
+            👁️
+          </button>
+        </div>
+        <span class="field-error" id="current-password-error"></span>
+      </div>
+
+      <div class="auth-form-group">
+        <label for="newPassword">
+          New Password
+          <span class="required">*</span>
+        </label>
+        <div class="password-input-wrapper">
+          <input
+            type="password"
+            id="newPassword"
+            name="new_password"
+            class="auth-input"
+            placeholder="Create a strong password"
+            required
+            autocomplete="new-password"
+          >
+          <button type="button" class="password-toggle" id="toggleNewPassword" aria-label="Toggle password visibility">
+            👁️
+          </button>
+        </div>
+        <div class="password-strength" id="passwordStrength" style="display: none;">
+          <div class="password-strength-bar">
+            <div class="password-strength-progress" id="strengthBar"></div>
+          </div>
+          <div class="password-strength-text" id="strengthText"></div>
+        </div>
+        <span class="field-error" id="new-password-error"></span>
+      </div>
+
+      <div class="auth-form-group">
+        <label for="confirmPassword">
+          Confirm New Password
+          <span class="required">*</span>
+        </label>
+        <div class="password-input-wrapper">
+          <input
+            type="password"
+            id="confirmPassword"
+            name="confirm_password"
+            class="auth-input"
+            placeholder="Re-enter new password"
+            required
+            autocomplete="new-password"
+          >
+          <button type="button" class="password-toggle" id="toggleConfirmPassword" aria-label="Toggle password visibility">
+            👁️
+          </button>
+        </div>
+        <span class="field-error" id="confirm-password-error"></span>
+      </div>
+
+      <button type="submit" class="auth-button auth-button-primary" id="changePasswordButton">
+        <span id="changePasswordButtonText">Change Password</span>
+        <span id="changePasswordButtonSpinner" class="auth-loading" style="display: none;"></span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+<script>
+  // Initialize profile page
+  if (typeof initProfilePage === 'function') {
+    initProfilePage();
+  }
+</script>
+{% endblock %}

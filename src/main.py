@@ -1,6 +1,7 @@
 import os
 import sys
 import logging
+from datetime import timedelta
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 try:
@@ -17,6 +18,14 @@ from src.config import DevelopmentConfig, PreproductionConfig, ProductionConfig,
 from src.services.spotify_service import SpotifyService
 from src.services.youtube_service import get_channel_stats_by_name
 from src.api.routes import api_bp
+from src.api.auth_routes import auth_bp, init_limiter as init_auth_limiter
+from src.api.profile_routes import profile_bp
+from src.services.database_service import db_service
+from src.services.auth_service import auth_service
+from src.services.email_service import email_service
+
+# Import SQLAlchemy db from models.py (for existing playlists functionality)
+from src.models import db as sqlalchemy_db
 
 load_dotenv()
 
@@ -34,18 +43,18 @@ app.secret_key = os.getenv("SECRET_KEY", "octa-music-secret")
 CORS(app, resources={
     r"/api/*": {
         "origins": "*",
-        "methods": ["GET", "POST", "OPTIONS"],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         "allow_headers": ["Content-Type"]
     }
 })
 
-# Configure rate limiting
-limiter = Limiter(
-    app=app,
-    key_func=get_remote_address,
-    default_limits=["200 per day", "50 per hour"],
-    storage_uri="memory://"
-)
+# Configure rate limiting - DISABLED FOR LOCAL TESTING
+# limiter = Limiter(
+#     app=app,
+#     key_func=get_remote_address,
+#     default_limits=["200 per day", "50 per hour"],
+#     storage_uri="memory://"
+# )
 
 app_env = os.getenv("APP_ENV", "development").lower()
 
@@ -58,8 +67,26 @@ elif app_env == "development":
 else:
     app.config.from_object(Config)
 
-# Register API blueprint
+# Configure session
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(
+    seconds=app.config.get('PERMANENT_SESSION_LIFETIME', 4800)
+)
+
+# Initialize SQLAlchemy for playlists (existing functionality)
+sqlalchemy_db.init_app(app)
+
+# Initialize MongoDB for authentication
+db_service.init_app(app)
+auth_service.init_app(app)
+email_service.init_app(app)
+
+# Initialize rate limiter for auth routes - DISABLED FOR LOCAL TESTING
+# init_auth_limiter(limiter)
+
+# Register API blueprints
 app.register_blueprint(api_bp)
+app.register_blueprint(auth_bp)
+app.register_blueprint(profile_bp)
 
 try:
     spotify_service = SpotifyService()
@@ -69,8 +96,46 @@ except ValueError as e:
 
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY", "YOUR_API_KEY")
 
+# Helper function to save search history
+def save_search_history(user_id, search_query, artist_result):
+    """
+    Save Spotify search to user's search history.
+    
+    Args:
+        user_id: User ID string
+        search_query: Search query string
+        artist_result: Artist result dictionary from Spotify
+    """
+    try:
+        from bson import ObjectId
+        from datetime import datetime
+        
+        search_history_collection = db_service.get_search_history_collection()
+        if not search_history_collection:
+            logger.warning("Search history collection not available")
+            return
+        
+        # Prepare search history document
+        history_doc = {
+            'user_id': ObjectId(user_id),
+            'search_query': search_query,
+            'timestamp': datetime.utcnow(),
+            'results': {
+                'artist_id': artist_result.get('id'),
+                'artist_name': artist_result.get('name'),
+                'artist_url': artist_result.get('url')
+            }
+        }
+        
+        # Insert into database
+        search_history_collection.insert_one(history_doc)
+        logger.info(f"Search history saved for user {user_id}: {search_query}")
+    except Exception as e:
+        logger.error(f"Error saving search history: {e}")
+        # Don't fail the search if history save fails
+
 @app.route("/", methods=["GET", "POST"])
-@limiter.limit("30 per minute")
+# @limiter.limit("30 per minute")  # DISABLED FOR LOCAL TESTING
 def home():
     error_message = None
     success_message = None
@@ -91,6 +156,14 @@ def home():
                             session['artist'] = artist
                             success_message = f"Found artist: {artist['name']}"
                             session['success'] = success_message
+                            
+                            # Save search history if user is logged in
+                            if session.get('user_id'):
+                                save_search_history(
+                                    session.get('user_id'),
+                                    artist_name,
+                                    artist
+                                )
                         else:
                             error_message = f"No artist found for '{artist_name}'"
                             session['error'] = error_message
@@ -137,6 +210,41 @@ def home():
         error_message=error_message,
         success_message=success_message
     )
+
+# Authentication page routes
+@app.route("/login")
+def login_page():
+    """Render login page."""
+    # Redirect to home if already logged in
+    if session.get('user_id'):
+        return redirect(url_for('home'))
+    return render_template("auth/login.html")
+
+@app.route("/register")
+def register_page():
+    """Render registration page."""
+    # Redirect to home if already logged in
+    if session.get('user_id'):
+        return redirect(url_for('home'))
+    return render_template("auth/register.html")
+
+@app.route("/reset-password")
+def reset_password_request_page():
+    """Render password reset request page."""
+    return render_template("auth/reset_request.html")
+
+@app.route("/reset-password/<token>")
+def reset_password_page(token):
+    """Render password reset page."""
+    return render_template("auth/reset_password.html", token=token)
+
+@app.route("/profile")
+def profile_page():
+    """Render user profile page."""
+    # Require authentication
+    if not session.get('user_id'):
+        return redirect(url_for('login_page'))
+    return render_template("auth/profile.html")
 
 @app.errorhandler(404)
 def not_found(e):
