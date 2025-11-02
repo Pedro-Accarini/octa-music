@@ -23,6 +23,8 @@ from src.api.profile_routes import profile_bp
 from src.services.database_service import db_service
 from src.services.auth_service import auth_service
 from src.services.email_service import email_service
+
+# Import SQLAlchemy db from models.py (for existing playlists functionality)
 from src.models import db as sqlalchemy_db
 
 load_dotenv()

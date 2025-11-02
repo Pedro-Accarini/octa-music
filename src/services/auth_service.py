@@ -8,7 +8,7 @@ from itsdangerous import URLSafeTimedSerializer
 from bson import ObjectId
 from flask import current_app
 
-from src.models.user_model import User
+from src.user_models.user_model import User
 from src.services.database_service import db_service
 from src.utils.validators import (
     validate_username,
