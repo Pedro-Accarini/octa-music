@@ -113,7 +113,9 @@ Contributions are welcome! Please read the [Code of Conduct](CODE_OF_CONDUCT.md)
 
 ## License
 
-Distributed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+Copyright (c) 2024 pacca. All Rights Reserved.
+
+This software is proprietary and confidential. Unauthorized copying, distribution, or use is strictly prohibited. See the [LICENSE](LICENSE) file for more details.
 
 ## Deployment & CI/CD
 
