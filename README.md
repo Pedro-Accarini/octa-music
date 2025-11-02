@@ -115,7 +115,9 @@ Contributions are welcome! Please read the [Code of Conduct](CODE_OF_CONDUCT.md)
 
 Distributed under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
-## Setup
+## Deployment & CI/CD
+
+For deploying to production using Render and GitHub Actions:
 
 1. **Configure GitHub Secrets:**
    - Go to your repository → Settings → Secrets and variables → Actions.
@@ -125,7 +127,7 @@ Distributed under the MIT License. See the [LICENSE](LICENSE) file for more deta
    - Place your custom CI/CD logic in `.github/actions/ci-checks` and `.github/actions/cd-checks`.
 
 3. **Branch Strategy:**
-   - Use the branch naming conventions above for feature, bugfix, hotfix, and release branches to trigger the correct workflows.
+   - Follow standard Git Flow naming conventions for feature, bugfix, hotfix, and release branches to trigger the correct workflows.
 
 ## Useful Links
 
