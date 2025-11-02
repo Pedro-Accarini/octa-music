@@ -46,22 +46,25 @@ jobs:
           PROJECT_VERSION=$(cat ./src/version.py | grep -oP '(?<=__version__ = ")[^"]*')
           git fetch --tags --unshallow || git fetch --tags
           LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null || echo "")
-
+          
+          # Strip 'v' prefix from tag if present for comparison
+          LATEST_TAG_VERSION="${LATEST_TAG#v}"
+          
           if [ -z "$LATEST_TAG" ]; then
             echo "No existing tags found. Creating the first tag: $PROJECT_VERSION"
             git tag "$PROJECT_VERSION"
             git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} "$PROJECT_VERSION"
-          elif [ "$PROJECT_VERSION" = "$LATEST_TAG" ]; then
-            echo "Versions match. Tag $PROJECT_VERSION already exists."
-          elif [ "$(printf '%s\n' "$LATEST_TAG" "$PROJECT_VERSION" | sort -V | head -n1)" = "$PROJECT_VERSION" ]; then
-            echo "Error: Project version ($PROJECT_VERSION) is less than the latest tag ($LATEST_TAG). Please update the version."
+          elif [ "$PROJECT_VERSION" = "$LATEST_TAG_VERSION" ]; then
+            echo "Versions match. Tag already exists (project: $PROJECT_VERSION, latest: $LATEST_TAG)."
+          elif [ "$(printf '%s\n' "$LATEST_TAG_VERSION" "$PROJECT_VERSION" | sort -V | head -n1)" = "$PROJECT_VERSION" ]; then
+            echo "Error: Project version ($PROJECT_VERSION) is less than or equal to the latest tag ($LATEST_TAG). Please update the version."
             exit 1
           else
             echo "Creating new tag: $PROJECT_VERSION"
             git tag "$PROJECT_VERSION"
             git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} "$PROJECT_VERSION"
           fi
-
+          
           echo "project_version=$PROJECT_VERSION" >> $GITHUB_OUTPUT
           echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
 
