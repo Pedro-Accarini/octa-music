@@ -25,25 +25,48 @@ Octa Music is a web application built with Flask that allows you to search for a
 
 ## Installation
 
-1. Run 
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Pedro-Accarini/octa-music.git
+   cd octa-music
    ```
+
+2. Set up a virtual environment and install dependencies:
+   ```bash
    python -m venv venv
+   # On Windows:
    venv\Scripts\activate
+   # On macOS/Linux:
+   source venv/bin/activate
+   
    pip install -r requirements.txt
-   copy .env.example .env
    ```
-3. Edit the `.env` file with your Spotify credentials.
+
+3. Create a `.env` file:
+   ```bash
+   # On Windows:
+   copy .env.example .env
+   # On macOS/Linux:
+   cp .env.example .env
+   ```
+
+4. Edit the `.env` file with your API credentials (see Configuration below).
 
 ## Configuration
 
-The `.env` file must contain your Spotify credentials:
+The `.env` file must contain your API credentials:
 
 ```
 SPOTIPY_CLIENT_ID=your_client_id
 SPOTIPY_CLIENT_SECRET=your_client_secret
+YOUTUBE_API_KEY=your_youtube_api_key
+SECRET_KEY=your_secret_key
 ```
 
-You can obtain these credentials at https://developer.spotify.com/dashboard/applications
+**Where to get credentials:**
+- **Spotify**: Get `SPOTIPY_CLIENT_ID` and `SPOTIPY_CLIENT_SECRET` at https://developer.spotify.com/dashboard/applications
+- **YouTube**: Get `YOUTUBE_API_KEY` at https://console.cloud.google.com/apis/credentials
+- **SECRET_KEY**: Generate a random string for Flask session security
 
 ## Environments (dev, pre, prod)
 
@@ -62,10 +85,34 @@ You can create specific `.env` files for each environment, for example:
 
 Make sure your pipeline or execution environment loads the correct file and sets the `APP_ENV` variable.
 
+## How to Run
+
 Example of local execution for development:
-```sh
+```bash
+# On Windows:
 set APP_ENV=development
 python src/main.py
+
+# On macOS/Linux:
+export APP_ENV=development
+python src/main.py
+```
+
+The application will be available at `http://localhost:5000`
+
+## API Documentation
+
+Octa Music provides a RESTful API for programmatic access to Spotify and YouTube search functionality. For complete API documentation, including endpoints, request/response formats, and examples, see [API_DOCUMENTATION.md](API_DOCUMENTATION.md).
+
+**Quick API Example:**
+```bash
+# Health check
+curl http://localhost:5000/api/v1/health
+
+# Search for a Spotify artist
+curl -X POST http://localhost:5000/api/v1/spotify/search \
+  -H "Content-Type: application/json" \
+  -d '{"artist_name": "Taylor Swift"}'
 ```
 
 ## Authentication System Setup
@@ -253,7 +300,7 @@ Copyright (c) 2024 pacca. All Rights Reserved.
 
 This software is proprietary and confidential. Unauthorized copying, distribution, or use is strictly prohibited. See the [LICENSE](LICENSE) file for more details.
 
-## Setup
+For deploying to production using Render and GitHub Actions:
 
 1. **Configure GitHub Secrets:**
    - Go to your repository → Settings → Secrets and variables → Actions.
@@ -263,7 +310,7 @@ This software is proprietary and confidential. Unauthorized copying, distributio
    - Place your custom CI/CD logic in `.github/actions/ci-checks` and `.github/actions/cd-checks`.
 
 3. **Branch Strategy:**
-   - Use the branch naming conventions above for feature, bugfix, hotfix, and release branches to trigger the correct workflows.
+   - Follow standard Git Flow naming conventions for feature, bugfix, hotfix, and release branches to trigger the correct workflows.
 
 ## Useful Links
 
