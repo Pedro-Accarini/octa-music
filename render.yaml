@@ -2,8 +2,11 @@ services:
   - type: web
     name: octa-music
     env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 src.main:app
+    region: oregon
+    plan: free
+    branch: development
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn --chdir src --bind 0.0.0.0:$PORT --workers 2 --timeout 120 main:app"
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.11
