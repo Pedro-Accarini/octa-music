@@ -2,7 +2,7 @@
 Authentication API routes for user registration, login, logout, and password reset.
 """
 import logging
-from datetime import timedelta
+from datetime import timedelta, datetime
 from flask import Blueprint, request, jsonify, session, redirect, url_for, render_template
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -176,14 +176,24 @@ def login():
     session['username'] = user.username
     session['email'] = user.email
     session['remember_me'] = remember_me
+    session['login_time'] = datetime.utcnow().isoformat()
     
     # Set session duration
+    from datetime import timedelta
+    from flask import current_app
+    
     if remember_me:
+        # Remember me: 30 days
         session.permanent = True
-        # This will use REMEMBER_ME_DURATION from config (30 days)
+        current_app.permanent_session_lifetime = timedelta(
+            seconds=current_app.config.get('REMEMBER_ME_DURATION', 2592000)
+        )
     else:
+        # Regular session: 80 minutes
         session.permanent = True
-        # This will use PERMANENT_SESSION_LIFETIME from config (80 minutes)
+        current_app.permanent_session_lifetime = timedelta(
+            seconds=current_app.config.get('PERMANENT_SESSION_LIFETIME', 4800)
+        )
     
     logger.info(f"User logged in: {user.username} (remember_me: {remember_me})")
     

@@ -32,25 +32,25 @@ def validate_username(username: str) -> Tuple[bool, Optional[str]]:
     return True, None
 
 
-def validate_email_format(email: str) -> Tuple[bool, Optional[str]]:
+def validate_email_format(email: str) -> Tuple[bool, Optional[str], Optional[str]]:
     """
-    Validate email format.
+    Validate email format and return normalized email.
     
     Args:
         email: Email address to validate
     
     Returns:
-        Tuple of (is_valid, error_message)
+        Tuple of (is_valid, error_message, normalized_email)
     """
     if not email:
-        return False, "Email is required"
+        return False, "Email is required", None
     
     try:
         # Validate and normalize email
         validated = validate_email(email, check_deliverability=False)
-        return True, None
+        return True, None, validated.email
     except EmailNotValidError as e:
-        return False, str(e)
+        return False, str(e), None
 
 
 def validate_password(password: str) -> Tuple[bool, Optional[str]]:

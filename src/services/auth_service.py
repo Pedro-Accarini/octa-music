@@ -97,9 +97,12 @@ class AuthService:
         if not valid:
             return None, error
         
-        valid, error = validate_email_format(email)
+        valid, error, normalized_email = validate_email_format(email)
         if not valid:
             return None, error
+        
+        # Use normalized email
+        email = normalized_email
         
         valid, error = validate_password(password)
         if not valid:
@@ -419,9 +422,12 @@ class AuthService:
         new_email = sanitize_input(new_email.lower())
         
         # Validate email
-        valid, error = validate_email_format(new_email)
+        valid, error, normalized_email = validate_email_format(new_email)
         if not valid:
             return None, error
+        
+        # Use normalized email
+        new_email = normalized_email
         
         # Check if email already exists
         existing = self.users_collection.find_one({
