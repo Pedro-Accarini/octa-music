@@ -157,13 +157,13 @@ class AuthService:
         if self.users_collection is None:
             return None, "Database not available"
         
-        login = sanitize_input(login.lower())
+        login = sanitize_input(login)
         
-        # Find user by email or username
+        # Find user by email or username (case-insensitive)
         user_data = self.users_collection.find_one({
             "$or": [
-                {"email": login},
-                {"username": login}
+                {"email": {"$regex": f"^{login}$", "$options": "i"}},
+                {"username": {"$regex": f"^{login}$", "$options": "i"}}
             ]
         })
         
