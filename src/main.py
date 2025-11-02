@@ -94,6 +94,44 @@ except ValueError as e:
 
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY", "YOUR_API_KEY")
 
+# Helper function to save search history
+def save_search_history(user_id, search_query, artist_result):
+    """
+    Save Spotify search to user's search history.
+    
+    Args:
+        user_id: User ID string
+        search_query: Search query string
+        artist_result: Artist result dictionary from Spotify
+    """
+    try:
+        from bson import ObjectId
+        from datetime import datetime
+        
+        search_history_collection = db_service.get_search_history_collection()
+        if not search_history_collection:
+            logger.warning("Search history collection not available")
+            return
+        
+        # Prepare search history document
+        history_doc = {
+            'user_id': ObjectId(user_id),
+            'search_query': search_query,
+            'timestamp': datetime.utcnow(),
+            'results': {
+                'artist_id': artist_result.get('id'),
+                'artist_name': artist_result.get('name'),
+                'artist_url': artist_result.get('url')
+            }
+        }
+        
+        # Insert into database
+        search_history_collection.insert_one(history_doc)
+        logger.info(f"Search history saved for user {user_id}: {search_query}")
+    except Exception as e:
+        logger.error(f"Error saving search history: {e}")
+        # Don't fail the search if history save fails
+
 @app.route("/", methods=["GET", "POST"])
 @limiter.limit("30 per minute")
 def home():
@@ -116,6 +154,14 @@ def home():
                             session['artist'] = artist
                             success_message = f"Found artist: {artist['name']}"
                             session['success'] = success_message
+                            
+                            # Save search history if user is logged in
+                            if session.get('user_id'):
+                                save_search_history(
+                                    session.get('user_id'),
+                                    artist_name,
+                                    artist
+                                )
                         else:
                             error_message = f"No artist found for '{artist_name}'"
                             session['error'] = error_message
