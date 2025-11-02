@@ -56,8 +56,7 @@ class User:
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert user object to dictionary for MongoDB storage."""
-        return {
-            '_id': self._id,
+        user_dict = {
             'username': self.username,
             'email': self.email,
             'password_hash': self.password_hash,
@@ -71,6 +70,10 @@ class User:
             'failed_login_attempts': self.failed_login_attempts,
             'lockout_until': self.lockout_until
         }
+        # Only include _id if it exists (for updates, not inserts)
+        if self._id is not None:
+            user_dict['_id'] = self._id
+        return user_dict
     
     def to_public_dict(self) -> Dict[str, Any]:
         """Convert user object to dictionary for public API responses (exclude sensitive data)."""
