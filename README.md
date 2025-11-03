@@ -68,7 +68,7 @@ SPOTIPY_CLIENT_ID=your_spotify_client_id
 SPOTIPY_CLIENT_SECRET=your_spotify_client_secret
 
 # MongoDB (https://www.mongodb.com/cloud/atlas)
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/octa_music
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/octa_music
 
 # Email (for account verification)
 MAIL_USERNAME=your-email@gmail.com
