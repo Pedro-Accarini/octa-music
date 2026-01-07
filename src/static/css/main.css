@@ -3,6 +3,37 @@
  * Uses design tokens from design-tokens.css
  */
 
+/* Hero Section */
+.hero-section {
+  width: 100%;
+  text-align: center;
+  padding: var(--spacing-8) var(--spacing-4) var(--spacing-6);
+  margin-bottom: var(--spacing-4);
+}
+
+.hero-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.hero-title {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-3);
+  line-height: var(--line-height-tight);
+  animation: fadeIn var(--transition-slow) ease-out;
+}
+
+.hero-subtitle {
+  font-size: var(--font-size-lg);
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
+  max-width: 600px;
+  margin: 0 auto;
+  animation: fadeIn var(--transition-slow) ease-out 0.1s backwards;
+}
+
 /* Main content layout */
 .main-flex {
   display: flex;
@@ -23,6 +54,53 @@
 
 .search-box:last-child {
   margin-bottom: var(--spacing-12);
+}
+
+/* Search Title and Description */
+.search-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary-500);
+  margin-bottom: var(--spacing-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+}
+
+.search-icon {
+  font-size: var(--font-size-3xl);
+  display: inline-block;
+  animation: fadeIn var(--transition-base) ease-out;
+}
+
+.search-description {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-4);
+  text-align: center;
+  line-height: var(--line-height-relaxed);
+}
+
+/* Input with Icon */
+.input-with-icon {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: var(--spacing-4);
+  font-size: var(--font-size-lg);
+  pointer-events: none;
+  opacity: 0.6;
+  z-index: 1;
+}
+
+.input-with-icon input {
+  padding-left: calc(var(--spacing-4) * 3);
 }
 
 /* Artist/Channel images */
@@ -235,11 +313,35 @@
   min-height: var(--button-height-base);
   display: flex;
   align-items: center;
+  gap: var(--spacing-3);
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.menu-item-icon {
+  font-size: var(--font-size-lg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-item-text {
+  display: inline-block;
+}
+
+.menu-icon {
+  display: inline-block;
+  font-size: var(--font-size-xl);
 }
 
 .user-menu a:hover {
   background: var(--hover-overlay);
   color: var(--color-primary-700);
+  transform: translateX(4px);
 }
 
 .user-menu a:focus-visible {
@@ -323,6 +425,18 @@
 
 /* Mobile Small: 320px - 374px */
 @media (max-width: 374px) {
+  .hero-title {
+    font-size: var(--font-size-2xl);
+  }
+  
+  .hero-subtitle {
+    font-size: var(--font-size-base);
+  }
+  
+  .hero-section {
+    padding: var(--spacing-6) var(--spacing-3) var(--spacing-4);
+  }
+  
   .user-header {
     padding: var(--spacing-3) var(--spacing-4);
     margin: var(--spacing-4) auto var(--spacing-6) auto;
@@ -505,4 +619,72 @@
     font-size: 0.9rem;
     padding: 0.8rem 2rem 0.8rem 0.8rem;
   }
+}
+
+/* ============================================
+   FOOTER STYLES
+   ============================================ */
+.site-footer {
+  width: 100%;
+  margin-top: var(--spacing-16);
+  padding: var(--spacing-8) var(--spacing-4);
+  background: var(--surface-base);
+  border-top: 1px solid var(--border-secondary);
+}
+
+.footer-content {
+  max-width: 1100px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.footer-section {
+  margin-bottom: var(--spacing-4);
+}
+
+.footer-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary-500);
+  margin-bottom: var(--spacing-2);
+}
+
+.footer-text {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-4);
+  flex-wrap: wrap;
+}
+
+.footer-link {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+  font-weight: var(--font-weight-medium);
+}
+
+.footer-link:hover {
+  color: var(--color-primary-500);
+}
+
+.footer-separator {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+.footer-copyright {
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  margin-top: var(--spacing-3);
 }
