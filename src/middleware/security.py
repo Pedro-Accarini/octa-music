@@ -142,7 +142,9 @@ class SecurityHeadersMiddleware:
 
 def rate_limit_error_handler(e):
     """Custom error handler for rate limit exceeded."""
-    logger.warning(f"Rate limit exceeded: {request.remote_addr} - {request.path}")
+    # Sanitize path for logging (remove query parameters)
+    path = request.path if request.path else "unknown"
+    logger.warning(f"Rate limit exceeded: {request.remote_addr} - path: {path}")
     return make_response({
         "success": False,
         "error": "Rate limit exceeded. Please try again later.",
@@ -246,11 +248,14 @@ class RequestValidationMiddleware:
             }), 413
         
         # Check for suspicious patterns in URL (using pre-compiled patterns)
+        # Only check the lowercase URL, don't log full URL (may contain sensitive data)
         url_lower = request.url.lower()
         
         for pattern in SUSPICIOUS_URL_PATTERNS:
             if pattern.search(url_lower):
-                logger.warning(f"Suspicious URL pattern detected: {request.url} from {request.remote_addr}")
+                # Log only the path, not the full URL (to avoid logging query params with tokens)
+                path = request.path if request.path else "unknown"
+                logger.warning(f"Suspicious URL pattern detected from {request.remote_addr} - path: {path}")
                 return jsonify({
                     "success": False,
                     "error": "Invalid request"
