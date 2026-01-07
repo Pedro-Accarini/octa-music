@@ -2,6 +2,7 @@ import os
 import sys
 import logging
 from datetime import timedelta
+from flask_compress import Compress
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 try:
@@ -24,39 +25,60 @@ from src.services.database_service import db_service
 from src.services.auth_service import auth_service
 from src.services.email_service import email_service
 
+# Import security middleware
+from src.middleware.security import SecurityHeadersMiddleware, RequestValidationMiddleware
+
 # Import SQLAlchemy db from models.py (for existing playlists functionality)
 from src.models import db as sqlalchemy_db
 
 load_dotenv()
 
-# Configure logging
+# Configure logging with more structured format
+log_level = logging.INFO if os.getenv("APP_ENV") == "production" else logging.DEBUG
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=log_level,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s - [%(filename)s:%(lineno)d]'
 )
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "octa-music-secret")
 
-# Configure CORS
-CORS(app, resources={
-    r"/api/*": {
-        "origins": "*",
-        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        "allow_headers": ["Content-Type"]
-    }
-})
-
-# Configure rate limiting - DISABLED FOR LOCAL TESTING
-# limiter = Limiter(
-#     app=app,
-#     key_func=get_remote_address,
-#     default_limits=["200 per day", "50 per hour"],
-#     storage_uri="memory://"
-# )
-
+# Get app environment
 app_env = os.getenv("APP_ENV", "development").lower()
+
+# Configure CORS with more restrictive settings for production
+if app_env == "production":
+    # In production, restrict origins to configured domains (comma-separated)
+    allowed_origins = os.getenv("FRONTEND_URL", "https://octa-music.onrender.com").split(',')
+    allowed_origins = [origin.strip() for origin in allowed_origins]  # Remove whitespace
+    
+    CORS(app, resources={
+        r"/api/*": {
+            "origins": allowed_origins,
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"],
+            "supports_credentials": True
+        }
+    })
+else:
+    # In development, allow all origins
+    CORS(app, resources={
+        r"/api/*": {
+            "origins": "*",
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type"]
+        }
+    })
+
+# Configure rate limiting
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri=os.getenv("RATELIMIT_STORAGE_URL", "memory://"),
+    enabled=app_env != "development"  # Disable in development for easier testing
+)
 
 if app_env == "production":
     app.config.from_object(ProductionConfig)
@@ -72,6 +94,17 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(
     seconds=app.config.get('PERMANENT_SESSION_LIFETIME', 4800)
 )
 
+# Set max content length for security (10MB)
+app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
+
+# Initialize compression for better performance
+compress = Compress()
+compress.init_app(app)
+
+# Initialize security middleware
+security_headers = SecurityHeadersMiddleware(app)
+request_validator = RequestValidationMiddleware(app)
+
 # Initialize SQLAlchemy for playlists (existing functionality)
 sqlalchemy_db.init_app(app)
 
@@ -80,8 +113,8 @@ db_service.init_app(app)
 auth_service.init_app(app)
 email_service.init_app(app)
 
-# Initialize rate limiter for auth routes - DISABLED FOR LOCAL TESTING
-# init_auth_limiter(limiter)
+# Initialize rate limiter for auth routes
+init_auth_limiter(limiter)
 
 # Register API blueprints
 app.register_blueprint(api_bp)
@@ -135,7 +168,7 @@ def save_search_history(user_id, search_query, artist_result):
         # Don't fail the search if history save fails
 
 @app.route("/", methods=["GET", "POST"])
-# @limiter.limit("30 per minute")  # DISABLED FOR LOCAL TESTING
+@limiter.limit("30 per minute")
 def home():
     error_message = None
     success_message = None
