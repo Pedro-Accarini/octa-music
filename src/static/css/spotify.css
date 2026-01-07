@@ -14,11 +14,12 @@
   width: 100%;
   text-align: center;
   transition: all var(--transition-base);
+  animation: fadeIn var(--transition-slow) ease-out;
 }
 
 .container:hover {
   box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
+  transform: translateY(-4px);
 }
 
 h1 {
@@ -95,12 +96,12 @@ button[type="submit"] {
 
 button[type="submit"]:hover {
   background: var(--color-primary-700);
-  transform: scale(1.02);
+  transform: translateY(-2px);
   box-shadow: var(--shadow-primary);
 }
 
 button[type="submit"]:active {
-  transform: scale(0.98);
+  transform: translateY(0);
   box-shadow: var(--shadow-xs);
 }
 
