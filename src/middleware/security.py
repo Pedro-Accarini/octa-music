@@ -25,7 +25,6 @@ DANGEROUS_PATTERNS = [
 
 # Pre-compile URL validation patterns for better performance
 SUSPICIOUS_URL_PATTERNS = [
-    re.compile(r'\.\./'),       # Path traversal (forward slash)
     re.compile(r'\.\.[/\\]'),   # Path traversal (forward or backslash)
     re.compile(r'<script'),     # Script injection
     re.compile(r'javascript:'), # JavaScript protocol
