@@ -5,8 +5,62 @@ services:
     region: oregon
     plan: free
     branch: development
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn --chdir src --bind 0.0.0.0:$PORT --workers 2 --timeout 120 main:app"
+    buildCommand: "pip install --upgrade pip && pip install -r requirements.txt"
+    startCommand: "gunicorn --chdir src --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 120 --worker-class gthread --worker-tmp-dir /dev/shm --access-logfile - --error-logfile - --log-level info --preload main:app"
+    
+    # Health Check Configuration
+    healthCheckPath: /api/v1/health
+    
+    # Auto-Deploy Configuration
+    autoDeploy: true
+    
+    # Environment Variables
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.11
+      
+      - key: APP_ENV
+        value: production
+      
+      - key: FLASK_ENV
+        value: production
+      
+      # Security: Force HTTPS
+      - key: SESSION_COOKIE_SECURE
+        value: true
+      
+      # Session Configuration
+      - key: SESSION_COOKIE_HTTPONLY
+        value: true
+      
+      - key: SESSION_COOKIE_SAMESITE
+        value: Lax
+      
+      # Rate Limiting
+      - key: RATELIMIT_STORAGE_URL
+        value: memory://
+      
+      - key: LOGIN_RATE_LIMIT_PER_MINUTE
+        value: 3
+      
+      - key: LOGIN_RATE_LIMIT_PER_HOUR
+        value: 10
+      
+      # Session Lifetime (80 minutes = 4800 seconds)
+      - key: PERMANENT_SESSION_LIFETIME
+        value: 4800
+      
+      # Remember Me Duration (30 days = 2592000 seconds)
+      - key: REMEMBER_ME_DURATION
+        value: 2592000
+      
+      # Sensitive variables (set in Render Dashboard)
+      # - SECRET_KEY
+      # - SPOTIPY_CLIENT_ID
+      # - SPOTIPY_CLIENT_SECRET
+      # - YOUTUBE_API_KEY
+      # - MONGODB_URI
+      # - MAIL_USERNAME
+      # - MAIL_PASSWORD
+      # - MAIL_DEFAULT_SENDER
+      # - FRONTEND_URL
