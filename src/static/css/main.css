@@ -111,7 +111,7 @@
   transition: opacity var(--transition-fast);
 }
 
-.input-with-icon input:focus ~ .input-icon,
+.input-with-icon:focus-within .input-icon,
 .input-with-icon:hover .input-icon {
   opacity: 0.9;
 }
