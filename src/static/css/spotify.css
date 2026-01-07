@@ -14,11 +14,12 @@
   width: 100%;
   text-align: center;
   transition: all var(--transition-base);
+  animation: fadeIn var(--transition-slow) ease-out;
 }
 
 .container:hover {
   box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
+  transform: translateY(-4px);
 }
 
 h1 {
@@ -42,6 +43,7 @@ input[name="artist_name"],
 input[type="text"],
 input[name="channel_name"] {
   flex: 1;
+  width: 100%;
   min-height: var(--input-height-base);
   padding: 0 var(--input-padding-x);
   border: var(--input-border-width) solid var(--border-primary);
@@ -57,13 +59,14 @@ input[name="artist_name"]::placeholder,
 input[type="text"]::placeholder,
 input[name="channel_name"]::placeholder {
   color: var(--text-tertiary);
-  opacity: 0.8;
+  opacity: 0.7;
 }
 
 input[name="artist_name"]:hover,
 input[type="text"]:hover,
 input[name="channel_name"]:hover {
   border-color: var(--border-focus);
+  background: var(--bg-tertiary);
 }
 
 input[name="artist_name"]:focus,
@@ -72,6 +75,7 @@ input[name="channel_name"]:focus {
   outline: none;
   border-color: var(--border-focus);
   box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+  background: var(--surface-base);
 }
 
 /* Search buttons */
@@ -92,12 +96,12 @@ button[type="submit"] {
 
 button[type="submit"]:hover {
   background: var(--color-primary-700);
-  transform: scale(1.02);
+  transform: translateY(-2px);
   box-shadow: var(--shadow-primary);
 }
 
 button[type="submit"]:active {
-  transform: scale(0.98);
+  transform: translateY(0);
   box-shadow: var(--shadow-xs);
 }
 

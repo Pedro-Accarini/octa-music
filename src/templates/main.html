@@ -19,9 +19,14 @@
 </head>
 <body>
   <header class="user-header">
-    <button class="menu-btn" onclick="document.querySelector('.user-menu').classList.toggle('open')" aria-label="Toggle menu">&#9776;</button>
+    <button class="menu-btn" onclick="document.querySelector('.user-menu').classList.toggle('open')" aria-label="Toggle menu">
+      <span class="menu-icon">☰</span>
+    </button>
     <nav class="user-menu" role="navigation">
-      <a href="/">Home</a>
+      <a href="/" class="menu-item">
+        <span class="menu-item-icon">🏠</span>
+        <span class="menu-item-text">Home</span>
+      </a>
     </nav>
     <button class="theme-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
       <span class="theme-icon">🌙</span>
@@ -31,6 +36,24 @@
   <div id="toast-container" class="toast-container"></div>
   
   {% block content %}{% endblock %}
+  
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3 class="footer-title">🎵 Octa Music</h3>
+        <p class="footer-text">Discover and explore music artist statistics from Spotify and YouTube.</p>
+      </div>
+      <div class="footer-links">
+        <a href="/" class="footer-link">Home</a>
+        <span class="footer-separator">•</span>
+        <a href="https://github.com/Pedro-Accarini/octa-music" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub</a>
+        <span class="footer-separator">•</span>
+        <a href="/login" class="footer-link">Login</a>
+      </div>
+      <p class="footer-copyright">Made with ❤️ for music lovers</p>
+    </div>
+  </footer>
   
   <script>
     // Menu toggle functionality
