@@ -9,6 +9,20 @@ from flask import request, make_response, session, redirect, url_for, jsonify
 
 logger = logging.getLogger(__name__)
 
+# Pre-compile regex patterns for better performance
+DANGEROUS_PATTERNS = [
+    re.compile(r'<script[^>]*>', re.IGNORECASE),
+    re.compile(r'</script>', re.IGNORECASE),
+    re.compile(r'javascript:', re.IGNORECASE),
+    re.compile(r'onerror\s*=', re.IGNORECASE),
+    re.compile(r'onload\s*=', re.IGNORECASE),
+    re.compile(r'onclick\s*=', re.IGNORECASE),
+    re.compile(r'onmouseover\s*=', re.IGNORECASE),
+    re.compile(r'<iframe', re.IGNORECASE),
+    re.compile(r'<object', re.IGNORECASE),
+    re.compile(r'<embed', re.IGNORECASE)
+]
+
 
 class SecurityHeadersMiddleware:
     """
@@ -130,6 +144,7 @@ def rate_limit_error_handler(e):
 def sanitize_input(data):
     """
     Sanitize user input to prevent XSS and injection attacks.
+    Uses pre-compiled regex patterns for better performance.
     
     Args:
         data: String or dict to sanitize
@@ -138,25 +153,9 @@ def sanitize_input(data):
         Sanitized data
     """
     if isinstance(data, str):
-        # Use case-insensitive pattern matching for better security
-        # This prevents bypasses like <Script>, <SCRIPT>, etc.
-        dangerous_patterns = [
-            r'<script[^>]*>',
-            r'</script>',
-            r'javascript:',
-            r'onerror\s*=',
-            r'onload\s*=',
-            r'onclick\s*=',
-            r'onmouseover\s*=',
-            r'<iframe',
-            r'<object',
-            r'<embed'
-        ]
-        
         sanitized = data
-        for pattern in dangerous_patterns:
-            sanitized = re.sub(pattern, '', sanitized, flags=re.IGNORECASE)
-        
+        for pattern in DANGEROUS_PATTERNS:
+            sanitized = pattern.sub('', sanitized)
         return sanitized.strip()
     elif isinstance(data, dict):
         return {k: sanitize_input(v) for k, v in data.items()}
@@ -239,12 +238,12 @@ class RequestValidationMiddleware:
         
         # Check for suspicious patterns in URL (case-insensitive)
         suspicious_patterns = [
-            r'\.\./',      # Path traversal (forward slash)
-            r'\.\\.\\',    # Path traversal (backslash)
-            r'<script',    # Script injection
-            r'javascript:',# JavaScript protocol
-            r'<iframe',    # iFrame injection
-            r'<object'     # Object injection
+            r'\.\./',       # Path traversal (forward slash)
+            r'\.\.[/\\]',   # Path traversal (forward or backslash)
+            r'<script',     # Script injection
+            r'javascript:', # JavaScript protocol
+            r'<iframe',     # iFrame injection
+            r'<object'      # Object injection
         ]
         url_lower = request.url.lower()
         

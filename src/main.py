@@ -49,11 +49,13 @@ app_env = os.getenv("APP_ENV", "development").lower()
 
 # Configure CORS with more restrictive settings for production
 if app_env == "production":
-    # In production, restrict origins
-    allowed_origins = os.getenv("FRONTEND_URL", "https://octa-music.onrender.com")
+    # In production, restrict origins to configured domains (comma-separated)
+    allowed_origins = os.getenv("FRONTEND_URL", "https://octa-music.onrender.com").split(',')
+    allowed_origins = [origin.strip() for origin in allowed_origins]  # Remove whitespace
+    
     CORS(app, resources={
         r"/api/*": {
-            "origins": [allowed_origins],
+            "origins": allowed_origins,
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],
             "supports_credentials": True
