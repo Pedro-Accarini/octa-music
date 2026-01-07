@@ -23,6 +23,16 @@ DANGEROUS_PATTERNS = [
     re.compile(r'<embed', re.IGNORECASE)
 ]
 
+# Pre-compile URL validation patterns for better performance
+SUSPICIOUS_URL_PATTERNS = [
+    re.compile(r'\.\./'),       # Path traversal (forward slash)
+    re.compile(r'\.\.[/\\]'),   # Path traversal (forward or backslash)
+    re.compile(r'<script'),     # Script injection
+    re.compile(r'javascript:'), # JavaScript protocol
+    re.compile(r'<iframe'),     # iFrame injection
+    re.compile(r'<object')      # Object injection
+]
+
 
 class SecurityHeadersMiddleware:
     """
@@ -231,28 +241,20 @@ class RequestValidationMiddleware:
         max_content_length = 10 * 1024 * 1024  # 10MB
         if request.content_length and request.content_length > max_content_length:
             logger.warning(f"Request too large: {request.content_length} bytes from {request.remote_addr}")
-            return make_response({
+            return jsonify({
                 "success": False,
                 "error": "Request entity too large"
-            }, 413)
+            }), 413
         
-        # Check for suspicious patterns in URL (case-insensitive)
-        suspicious_patterns = [
-            r'\.\./',       # Path traversal (forward slash)
-            r'\.\.[/\\]',   # Path traversal (forward or backslash)
-            r'<script',     # Script injection
-            r'javascript:', # JavaScript protocol
-            r'<iframe',     # iFrame injection
-            r'<object'      # Object injection
-        ]
+        # Check for suspicious patterns in URL (using pre-compiled patterns)
         url_lower = request.url.lower()
         
-        for pattern in suspicious_patterns:
-            if re.search(pattern, url_lower):
+        for pattern in SUSPICIOUS_URL_PATTERNS:
+            if pattern.search(url_lower):
                 logger.warning(f"Suspicious URL pattern detected: {request.url} from {request.remote_addr}")
-                return make_response({
+                return jsonify({
                     "success": False,
                     "error": "Invalid request"
-                }, 400)
+                }), 400
         
         return None
