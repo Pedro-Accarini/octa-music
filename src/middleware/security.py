@@ -238,11 +238,18 @@ class RequestValidationMiddleware:
             }, 413)
         
         # Check for suspicious patterns in URL (case-insensitive)
-        suspicious_patterns = [r'\.\./|\.\.\\', r'<script', r'javascript:', r'<iframe', r'<object']
+        suspicious_patterns = [
+            r'\.\./',      # Path traversal (forward slash)
+            r'\.\\.\\',    # Path traversal (backslash)
+            r'<script',    # Script injection
+            r'javascript:',# JavaScript protocol
+            r'<iframe',    # iFrame injection
+            r'<object'     # Object injection
+        ]
         url_lower = request.url.lower()
         
         for pattern in suspicious_patterns:
-            if re.search(pattern, url_lower, re.IGNORECASE):
+            if re.search(pattern, url_lower):
                 logger.warning(f"Suspicious URL pattern detected: {request.url} from {request.remote_addr}")
                 return make_response({
                     "success": False,
