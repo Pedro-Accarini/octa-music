@@ -14,7 +14,6 @@ from flask import Flask, request, render_template, session, redirect, url_for
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from flask_talisman import Talisman
 from dotenv import load_dotenv
 from src.config import DevelopmentConfig, PreproductionConfig, ProductionConfig, Config
 from src.services.spotify_service import SpotifyService

@@ -26,7 +26,6 @@ flask-mail==0.10.0
 # Rate Limiting & Security
 flask-cors==4.0.1
 flask-limiter==3.8.0
-Flask-Talisman==1.1.0
 
 # Caching & Performance
 Flask-Caching==2.3.0

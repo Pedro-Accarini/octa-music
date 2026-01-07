@@ -3,8 +3,9 @@ Security middleware for Flask application.
 Implements security headers and best practices for production deployment.
 """
 import logging
+import re
 from functools import wraps
-from flask import request, make_response
+from flask import request, make_response, session, redirect, url_for, jsonify
 
 logger = logging.getLogger(__name__)
 
@@ -137,11 +138,25 @@ def sanitize_input(data):
         Sanitized data
     """
     if isinstance(data, str):
-        # Remove potential script tags and dangerous characters
-        dangerous_patterns = ['<script', '</script', 'javascript:', 'onerror=', 'onload=']
+        # Use case-insensitive pattern matching for better security
+        # This prevents bypasses like <Script>, <SCRIPT>, etc.
+        dangerous_patterns = [
+            r'<script[^>]*>',
+            r'</script>',
+            r'javascript:',
+            r'onerror\s*=',
+            r'onload\s*=',
+            r'onclick\s*=',
+            r'onmouseover\s*=',
+            r'<iframe',
+            r'<object',
+            r'<embed'
+        ]
+        
         sanitized = data
         for pattern in dangerous_patterns:
-            sanitized = sanitized.replace(pattern, '')
+            sanitized = re.sub(pattern, '', sanitized, flags=re.IGNORECASE)
+        
         return sanitized.strip()
     elif isinstance(data, dict):
         return {k: sanitize_input(v) for k, v in data.items()}
@@ -162,8 +177,6 @@ def require_auth(f):
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        from flask import session, redirect, url_for, jsonify
-        
         if not session.get('user_id'):
             if request.is_json:
                 return jsonify({
@@ -187,8 +200,6 @@ def validate_content_type(required_type='application/json'):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            from flask import request, jsonify
-            
             if not request.content_type or required_type not in request.content_type:
                 return jsonify({
                     "success": False,
@@ -226,14 +237,16 @@ class RequestValidationMiddleware:
                 "error": "Request entity too large"
             }, 413)
         
-        # Check for suspicious patterns in URL
-        suspicious_patterns = ['../', '..\\', '<script', 'javascript:']
-        url = request.url.lower()
-        if any(pattern in url for pattern in suspicious_patterns):
-            logger.warning(f"Suspicious URL pattern detected: {request.url} from {request.remote_addr}")
-            return make_response({
-                "success": False,
-                "error": "Invalid request"
-            }, 400)
+        # Check for suspicious patterns in URL (case-insensitive)
+        suspicious_patterns = [r'\.\./|\.\.\\', r'<script', r'javascript:', r'<iframe', r'<object']
+        url_lower = request.url.lower()
+        
+        for pattern in suspicious_patterns:
+            if re.search(pattern, url_lower, re.IGNORECASE):
+                logger.warning(f"Suspicious URL pattern detected: {request.url} from {request.remote_addr}")
+                return make_response({
+                    "success": False,
+                    "error": "Invalid request"
+                }, 400)
         
         return None
