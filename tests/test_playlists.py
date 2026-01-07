@@ -8,8 +8,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 os.environ['SPOTIPY_CLIENT_ID'] = 'dummy'
 os.environ['SPOTIPY_CLIENT_SECRET'] = 'dummy'
 
-from src.main import app, db
-from src.models import Playlist, PlaylistSong
+from src.main import app
+from src.models import db, Playlist, PlaylistSong
 
 @pytest.fixture
 def client():
